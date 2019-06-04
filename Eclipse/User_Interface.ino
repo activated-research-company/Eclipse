@@ -142,8 +142,6 @@ void wait_4_key_press(){
     }
 }
 
-
-
 void set_Setpoint(){
     int Down = 0;  // Down counter
   

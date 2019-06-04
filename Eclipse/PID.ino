@@ -189,12 +189,12 @@ void SetMode(int Mode)
   bool newAuto = (Mode == AUTOMATIC);
   if (newAuto == !inAuto)
   { /*we just went from manual to auto*/
-    Initialize();
+    InitializePID();
   }
   inAuto = newAuto;
 }
 
-void Initialize()
+void InitializePID()
 {
   lastInput = Input;
   ITerm = Output;

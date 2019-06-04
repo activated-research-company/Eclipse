@@ -194,12 +194,12 @@ void Pushbutton_Test()
           tft.setTextColor(ILI9341_WHITE);  tft.setTextSize(3);
           tft.setCursor(SCol1, SLine1);
           tft.print("Press On/Off");
-          while (digitalRead(PBOn) == 0)  
+          while (digitalRead(PowerButton) == 0)  
           {
             // wait for PB not pressed
             strobe_WDT();
           }
-          while (digitalRead(PBOn) == 1)  
+          while (digitalRead(PowerButton) == 1)  
           {
              // Wait for press
              strobe_WDT();
