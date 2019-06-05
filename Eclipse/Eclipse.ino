@@ -1,60 +1,3 @@
-//  9/17/17 Version 000 - MAX31865 code running with console output (MUST SELECT UNDER 'TOOLS' THE SERIAL PORT AND OPEN SERIAL MONITO !!)
-//  9/19/17 Version 001 - MAX31865 code and LCD working .. reports temp and PB values to LCD
-//  9/19/17 Version 002 - Added in PID Loop Code 31% Code space used, 38% memory   . PID loop controlling heater now.
-//  9/20/17 Version 003 - Adding in simple UI for setpoint and display of PID
-//  10/8/17 Version 005  - Pared down graphics demo and merged in PID. Now have PID and TFT working.
-//                       - Changed RTD to 2 wire in setup. Now working with ARC RTD.
-//  11/01/17 Version 6.0 - This works on Arduino Micro.
-//  11/01/17 Version 7.0 - This is the start of Arduino Mega port.
-//  11/04/17 Version 8.0 - Mega Port Works on V7. This version is format edits.
-//  03/22/18 Version 11.0 - Test software for prototype from ALI
-//  04/08/18 Version 12.0 - Addressed inputs from Mike H: Set-point Increments, Heater Power Limit, Screen blanking after reaching setpoint, Unattached Power Up
-//                        - Changed Ki to x10 such that an input value of 10 is used as 1 .. this allows Ki between 0 and 1 to be used.
-//  05/01/18 Vesrion 14.0 - Added prompt for 'begin heating?' at startup
-//                        - Activated NVM on last setpoint on startup
-//                        - Added "Ver" define at top of program to use for version control
-// 05/29/18 Version 15.0  - Added RTD and Heater Checks to main loop
-//                        - Added "Last used Setpoint" to Startup
-// 06/16/18 Version 16.0  - Added ability to change SP while running
-//                        - Above requires calling 'Compute' while in PB polling loop to prevent runaway temps
-// 06/21/18 Version 17.0  - In prgress update. Adding call to PID in 'wait for keypress'
-
-//                        - Disabled heater fault 2 (low current) need to look at this
-//                        - Seperated code into Tabs for easier editting
-// 06/22/18 Version 18.0  - In prgress update.
-//                        - Save to NVM after param edit
-//                        - Scaled iTerm to 1/100 (Value of 1 gets used as 1/100)
-//                        = Call to SetTunings changes SampleTime .. changesd to 500
-//                        - Changed PID to run on only strong P until error < 15
-// 6/23/18 Version 18.T1  - Ran tight loop on runPID and display overnight with no crashes V18T1
-// 06/23/18 Version 19.0  - Ran 8 hrs tight loop no problem
-//                        - Delta T Rate = approx 1 deg C / sec with max power applied
-//                        - ran 12 hrs over night
-//                        - temp stable within +/- .3 deg at 350 SP
-// 06/26/18 Version 20.0  - Added Rolling average filters on input temp and output
-// 06/27/18 Version 21.0 - Added switches for input and output filters in params
-//
-// 09/28/18 Version 49.1 -  Merge Begins. Checked Compile.
-//                  49.14   Compiles with merged code and runs w/o problem. Need to work on screen updates and pulsing heater.
-//                  49.15   Tested overnite, no problems
-//                  49.2    Working Save
-//     10/6/18      49.4    recovered from 49.3
-//     10/06/18     49.6    Updated Sleep and Wakeup, Fixed Info Screen, Worked on timing
-// 10/08/18                 Sent to Mike H and archived this. Updating to 49.7 for ongoing
-// 10/08/18         49.7    Ongoing. Working on Info/Edit menus
-//                          Removed recursion in edit param and tested. Moving to 49.8
-// 10/08/18         49.8    Ongoing ...working on info menu
-//                          Changed text size and format in info display
-// 10/09/18         49.9    Cleaned up debug logging
-//                          Cleaned up NVM recall for CC and added dore datalogging
-// 10/10/18         50.0    Shipped to Mike on Oct 10
-// 10/17/18         51.0    Changed RTD sampling to quiet time
-// 04/26/2019       v1.1    Changed Software Version Control Scheme
-//                          Changed error message to "Polyarc Not Found,
-//                          Check All Connections, Press Any Key to Continue"
-// 05/30/2019       v1.2    Changed heater cartridge resistance error check from
-//                          <25 ohms to <20 ohms - PT100 were erroring our and avg resistance is ~24 ohms
-
 #include <Adafruit_MAX31865.h>
 #include <Wire.h>
 #include "SPI.h"
@@ -66,10 +9,11 @@
 //Fonts
 #include <Fonts/FreeSans9pt7b.h>
 
-#define Ver "v1.2"
-#define Ver_Date "May 30, 2019"
+#define Ver "v1.2.1"
+#define Ver_Date "June 05, 2019"
 
 #define color_black 0x0000
+#define color_white 0xFFFF
 #define bg_color 0xFFFF
 #define txt_clr 0x0000
 
@@ -362,8 +306,6 @@ void initialize() {
   
   InFilt_State = 0;
   OutFilt_State = 0; // int filter states, NVM recall will override later
-  
-  tft.fillScreen(color_black);
   
 }
 
