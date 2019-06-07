@@ -117,33 +117,40 @@ void get_info(){
      }
    
 }
+
 void wait_4_key_press(){
-    while ((digitalRead(PB1) == 0) || (digitalRead(PB2) == 0) || (digitalRead(PB3) == 0) ){ // wait for all keys up
-        Run_PID();   // Call PID Loop to prevent runaway while waiting for keys
-        strobe_WDT();
+  
+  while (AtLeastOneButtonIsDepressed()) {
+      Run_PID();   // prevent runaway while waiting for keys
+  }
+  
+  All_Keys_False();
+  
+  while (true){
+
+    if (PowerButtonIsDepressed()) {
+      TurnOff();
+      break;
     }
-    All_Keys_False();
-    while (true){
-        
-        if (digitalRead(PB1) == 0){
-            KEY1 = true;
-            break;
-        }
-        if (digitalRead(PB2) == 0){
-            KEY2 = true;
-            break;
-        }
-        if (digitalRead(PB3) == 0){
-            KEY3 = true;
-            break;
-        }
-        Run_PID();   // Call PID Loop to prevent runaway while waiting for keys
-        strobe_WDT();
+    if (PushButtonOneIsDepressed()) {
+        KEY1 = true;
+        break;
     }
+    if (PushButtonTwoIsDepressed()) {
+        KEY2 = true;
+        break;
+    }
+    if (PushButtonThreeIsDepressed()) {
+        KEY3 = true;
+        break;
+    }
+    
+    Run_PID();   // prevent runaway while waiting for keys    
+  }
 }
 
 void set_Setpoint(){
-    int Down = 0;  // Down counter
+    int Down = 0;
   
     tft.fillScreen(bg_color);
     tft.setFont(&FreeSans9pt7b);
@@ -158,7 +165,6 @@ void set_Setpoint(){
     while (true) {
         Down = 0;
         Run_PID();
-        strobe_WDT();
         while (digitalRead(PB1) == 0){
             if (Setpoint <= 800) {
               strobe_WDT();
@@ -411,7 +417,6 @@ EP_Start:
     tft.print("Back");
     while ((digitalRead(PB1) == 0) || (digitalRead(PB2) == 0) || (digitalRead(PB3) == 0) ){ // wait for all keys up
         Run_PID();   // Call PID Loop to prevent runaway while waiting for keys
-        strobe_WDT();
     }
 
     int iconCtrl = 0;
@@ -419,7 +424,6 @@ EP_Start:
   
     for(;;){
         Run_PID();   // Call PID Loop to prevent runaway while waiting for keys
-        strobe_WDT();
   
         if (digitalRead(PB1) == 0){
             iconCtrl = (iconCtrl +  1) % 4;

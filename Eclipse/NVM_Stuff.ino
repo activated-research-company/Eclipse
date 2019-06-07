@@ -31,18 +31,17 @@ void NVM_Print() {
 
 void Param_Print()
 {
-  Serial.print("Kp = ");
-  Serial.println(kp, 4);
-
-  Serial.print("Ki = ");
-  Serial.println(ki, 4);
-
-  Serial.print("Kd = ");
-  Serial.println(kd, 4);
-
-  Serial.print("SetPt = ");
-  Serial.println(Setpoint, 4);
-  Serial.println();
+  if (DEBUG_MODE_IS_ON) {
+    Serial.print("Kp = ");
+    Serial.println(kp, 4);
+    Serial.print("Ki = ");
+    Serial.println(ki, 4);
+    Serial.print("Kd = ");
+    Serial.println(kd, 4);
+    Serial.print("SetPt = ");
+    Serial.println(Setpoint, 4);
+    Serial.println();
+  }
 }
 
 
@@ -79,7 +78,7 @@ int Recall_NVM() {
     tft.println("  ! NVM Restored !");
     delay_WDT(1000);
     tft.fillScreen(bg_color);
-    tft.drawBitmap(50, 0, myBitmap, 256, 256, 0x001F);  // This is the ARC Logo
+    tft.drawBitmap(50, 0, arcLogo, 256, 256, 0x001F);  // This is the ARC Logo
     strobe_WDT();
 
     Serial.println("Bad Data, Restoring to Defaults");
@@ -109,4 +108,3 @@ int Recall_NVM() {
   }
   NVM_Print();
 }
-

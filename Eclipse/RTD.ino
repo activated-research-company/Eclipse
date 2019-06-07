@@ -1,8 +1,3 @@
-
-// From TD Merge
-
-
-
 // ************ Reads the MAX RTC Chip and laods variable Temperature **************
 // Commented out debug statements, but left them in in case of issues in RTD readings later in testing
 
@@ -81,5 +76,3 @@ void read_temp_verbose()
     max.clearFault();
   }
 }
-
-

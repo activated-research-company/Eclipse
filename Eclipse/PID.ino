@@ -1,11 +1,7 @@
-// From TD
-
 void Run_PID()  // takes about 60 mS to run
 {
-
   long Tin;
-  
-  
+
   now = millis();
   
   strobe_WDT(); 
@@ -14,7 +10,6 @@ void Run_PID()  // takes about 60 mS to run
   {
     strobe_WDT(); 
     PID_Ticks++;                          // increments on 500mS tick
-  //  print_debug_line();
     print_datalog_data();                 // select either of these two for output. 
     
     Unfiltered_Temp = Temperature;        // read_Temp updates Temperature variable
@@ -52,7 +47,6 @@ void Run_PID()  // takes about 60 mS to run
         double dInput = (Input - lastInput);
         DTerm = kd * dInput;
         PTerm = kp * error;
-      
     }
     
     Output = PTerm + ITerm - DTerm;               //Compute PID Output by summing P,I,D terms
@@ -61,7 +55,6 @@ void Run_PID()  // takes about 60 mS to run
     else if (Output < outMin) Output = outMin;
 
     Power_Avg = Calc_Power_Avg(Output);                       // Calculate average power (over 30 seconds)
-
 
     Unfiltered_Out = Output;                    // Now smooth the output
     Tin = int(Unfiltered_Out*10);
@@ -78,14 +71,10 @@ void Run_PID()  // takes about 60 mS to run
     }
     lastInput = Input;  //Remember some variables for next time
     lastTime = now; 
-
-   // Serial.print("  PID Time= ");      Serial.println (millis()-now);
   }
+  
+  strobe_WDT();
 }
-
-
-
-
 
 long Smooth_Temp(int M) {
   ST_sum -= ST[ST_index];
@@ -137,10 +126,6 @@ long Calc_Delta_T(int M) {
   return delta_temp;
 }
 
-
-
-
-
 void SetTunings(double Kp, double Ki, double Kd)
 {
   if (Kp < 0 || Ki < 0 || Kd < 0) return;
@@ -157,8 +142,6 @@ void SetTunings(double Kp, double Ki, double Kd)
     kd = (0 - kd);
   }
 }
-
-
 void SetSampleTime(int NewSampleTime)
 {
   if (NewSampleTime > 0)

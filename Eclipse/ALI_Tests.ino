@@ -1,83 +1,65 @@
 void ALI_Tests()
-{
-
-// Test Pushbuttons, Display, RTD, Heater, Current Sensor, WDT
-//
-
- if ((digitalRead(PB1) == 0) && (digitalRead(PB3) ==0))   // Do this if PB 1 and PB3 are down on power up
- {
-
-    while (true)   // Do this until we bail and return
-        {
-        
-              tft.setRotation(1);
-              
-              tft.fillScreen(ILI9341_BLACK);
-              tft.setTextColor(ILI9341_WHITE);  tft.setTextSize(3);
-              tft.setCursor(SCol1, SLine1);
-              tft.print("ALI Tests");
-              
-              tft.setCursor(SCol1, SLine1+50);
-              tft.println("1 = Heater    ");
-              tft.setCursor(SCol1, SLine1+80);
-              tft.println("2 = Display       ");
-              tft.setCursor(SCol1, SLine1+110);
-              tft.println("3 = More       ");
-              tft.setCursor(SCol1, SLine4);
-              tft.print(" 1      2      3 ");
-            
-              wait_4_key_press();
-              while (true) {
-                if (KEY1) 
-                    {
-                         Heater_Test();
-                    }
-                if (KEY2)
-                    {
-                        Display_Test();
-                    }
-                if (KEY3)
-                    break;
-              } // WT
-              
-              tft.fillScreen(ILI9341_BLACK);
-              tft.setTextColor(ILI9341_WHITE);  tft.setTextSize(3);
-              tft.setCursor(SCol1, SLine1);
-              tft.print("ALI Tests");
-              
-              tft.setCursor(SCol1, SLine1+50);
-              tft.println("1 = Watch Dog    ");
-              tft.setCursor(SCol1, SLine1+80);
-              tft.println("2 = More  ");
-              tft.setCursor(SCol1, SLine1+110);
-              tft.println("3 = Exit        ");
-              tft.setCursor(SCol1, SLine4);
-              tft.print(" 1      2      3 ");
-              
-              wait_4_key_press();
-              while (true) {
-                if (KEY1) 
-                    {
-                        WDT_Test();
-                    }
-                if (KEY2)
-                    {
-                        tft.fillScreen(ILI9341_BLACK);
-                        tft.setTextColor(ILI9341_WHITE);  tft.setTextSize(3);
-                        tft.setCursor(SCol1, SLine1);
-                        tft.print("Goodbye");
-                        delay_WDT(500);
-                        return;
-                    }
-                if (KEY3)
-                    break;
-              } // WT     
+{ // test push buttons, display, RTD, heater, current sensor, WDT
+  while (true)
+  {
+    tft.setRotation(1);
+    
+    tft.fillScreen(ILI9341_BLACK);
+    tft.setTextColor(ILI9341_WHITE);
+    tft.setTextSize(2);
+    tft.setCursor(SCol1, SLine1);
+    tft.print("ALI Tests");
+    
+    tft.setCursor(SCol1, SLine1+50);
+    tft.println("1 = Heater    ");
+    tft.setCursor(SCol1, SLine1+80);
+    tft.println("2 = Display       ");
+    tft.setCursor(SCol1, SLine1+110);
+    tft.println("3 = More       ");
+    tft.setCursor(SCol1, SLine4);
+    tft.print(" 1      2      3 ");
+  
+    wait_4_key_press();
+    
+    while (true) {
+      if (KEY1) { Heater_Test(); }
+      if (KEY2) { Display_Test(); }
+      if (KEY3) { break; }
     }
- }
+    
+    tft.fillScreen(ILI9341_BLACK);
+    tft.setTextColor(ILI9341_WHITE);  tft.setTextSize(3);
+    tft.setCursor(SCol1, SLine1);
+    tft.print("ALI Tests");
+    
+    tft.setCursor(SCol1, SLine1+50);
+    tft.println("1 = Watch Dog    ");
+    tft.setCursor(SCol1, SLine1+80);
+    tft.println("2 = More  ");
+    tft.setCursor(SCol1, SLine1+110);
+    tft.println("3 = Exit        ");
+    tft.setCursor(SCol1, SLine4);
+    tft.print(" 1      2      3 ");
+    
+    wait_4_key_press();
+    while (true) {
+      if (KEY1) {
+          WDT_Test();
+        }
+      if (KEY2) {
+          tft.fillScreen(ILI9341_BLACK);
+          tft.setTextColor(ILI9341_WHITE);  tft.setTextSize(3);
+          tft.setCursor(SCol1, SLine1);
+          tft.print("Goodbye");
+          delay_WDT(500);
+          return;
+        }
+      if (KEY3) {
+        break;
+      }
+    }
+  }
 }
-
-
-
 
 void Display_Test()
 {
@@ -194,12 +176,12 @@ void Pushbutton_Test()
           tft.setTextColor(ILI9341_WHITE);  tft.setTextSize(3);
           tft.setCursor(SCol1, SLine1);
           tft.print("Press On/Off");
-          while (digitalRead(PowerButton) == 0)  
+          while (PowerButtonIsDepressed())  
           {
             // wait for PB not pressed
             strobe_WDT();
           }
-          while (digitalRead(PowerButton) == 1)  
+          while (!PowerButtonIsDepressed())  
           {
              // Wait for press
              strobe_WDT();
