@@ -1,23 +1,5 @@
-void print_debug_line(){
-  if (DEBUG_MODE_IS_ON)
-  {
-    Serial.print("T= " + now);
-    Serial.print("  TC= " + timeChange);
-    Serial.print("  P_Tics= " + PID_Ticks);
-    Serial.print("  RTD= ");
-    Serial.print(Unfiltered_Temp);
-    Serial.print("  DT= " + Delta_T);
-    Serial.print("  PA= " + Power_Avg);
-    Serial.print("  *** Curr = ");
-    Serial.print(Current);
-    Serial.print("    *** ");
-    Serial.print(" Raw_Out= ");
-    Serial.print(Unfiltered_Out);
-    Serial.print(" Int_Out= " + Int_Out);
-    Serial.println();
-  }
-}
-    
+
+
 void print_datalog_header()
 {
   if (DEBUG_MODE_IS_ON)
@@ -63,9 +45,11 @@ void print_datalog_header()
 
 void print_datalog_data()
 {
+  Serial.println();
+  print_datalog_header();
   if (DEBUG_MODE_IS_ON)
   {
-    Serial.print(now / 1000, 1);
+    Serial.print(now);
     Serial.print(",");
     Serial.print(Unfiltered_Temp, 2);
     Serial.print(",");
