@@ -1,34 +1,41 @@
+#define Default_Kp 100
+#define Default_Ki 0
+#define Default_Kd 0
+#define Default_Setpoint 305
+#define Default_InFilt 0
+#define Default_OutFilt 0
+
+#define NVM_Flag 1
+#define NVM_Setpt 2
+#define NVM_Kp 4
+#define NVM_Ki 5
+#define NVM_Kd 6
+#define NVM_InFilt 7
+#define NVM_OutFilt 8
+
 void NVM_Print() {
   if (DEBUG_MODE_IS_ON) {
     Serial.print("NVM_Flag = ");
-    Serial.println(EEPROM.read(NVM_Flag) );
+    Serial.println(EEPROM.read(NVM_Flag));
     Serial.print("NVM_Kp = ");
-    Serial.println(EEPROM.read(NVM_Kp) );
+    Serial.println(EEPROM.read(NVM_Kp));
     Serial.print("NVM_Ki = ");
-    Serial.println(EEPROM.read(NVM_Ki) );
+    Serial.println(EEPROM.read(NVM_Ki));
     Serial.print("NVM_Kd = ");
-    Serial.println(EEPROM.read(NVM_Kd) );
+    Serial.println(EEPROM.read(NVM_Kd));
     Serial.print("NVM_SetPt = ");
     int a = EEPROM.read(NVM_Setpt);
     int b = EEPROM.read(NVM_Setpt + 1);
     int temp = a * 256 + b;
     Serial.println(temp);
     Serial.print("NVM_InFilt = ");
-    Serial.println(EEPROM.read(NVM_InFilt) );
+    Serial.println(EEPROM.read(NVM_InFilt));
     Serial.print("NVM_OutFilt = ");
-    Serial.println(EEPROM.read(NVM_OutFilt) );
-    Serial.println();
+    Serial.println(EEPROM.read(NVM_OutFilt));
   }
 }
 
 int Write_NVM() {
-  Serial.print("NVM writer receiving setpoint ");
-  Serial.println(Setpoint, 1);  
-  int temp = Setpoint;   // convert double to single int (assume setpoint is < 65536)
-  int a = highByte(temp);
-  int b = lowByte(temp);
-  EEPROM.write(NVM_Setpt, a);
-  EEPROM.write(NVM_Setpt + 1, b); // Setpoint gets 16 bits
   EEPROM.write(NVM_Kp, kp);
   EEPROM.write(NVM_Ki, ki);
   EEPROM.write(NVM_Kd, kd);
@@ -40,17 +47,17 @@ int Recall_NVM() {
 
   NVM_Print();
   
-  if (EEPROM.read(NVM_Flag) != 0xAA) { // data does not exist in non-volatile memory
+  if (EEPROM.read(NVM_Flag) != 0xAA) { // variables do not exist in non-volatile memory
     Setpoint = Default_Setpoint;
     kp = Default_Kp;
     ki = Default_Ki;
     kd = Default_Kd;
     InFilt_State = Default_InFilt;
     OutFilt_State = Default_OutFilt;
-    EEPROM.write(NVM_Flag, 0xAA);       // Set the Flag for next time
+    EEPROM.write(NVM_Flag, 0xAA); // set the Flag for next time
     Write_NVM();
   }
-  else {
+  else { // variables found
     int a = EEPROM.read(NVM_Setpt);
     int b = EEPROM.read(NVM_Setpt + 1);
     Setpoint = a * 256 + b;

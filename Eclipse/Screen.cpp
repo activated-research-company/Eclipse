@@ -1,4 +1,4 @@
-#include "screen.h"
+#include "Screen.h"
 #include "Adafruit_ILI9341.h"
 #include <Fonts/FreeSans9pt7b.h>
 
@@ -49,6 +49,11 @@ void Screen::Print(int x, int y, double value, int decimalPlaces, int color = co
   _tft.setCursor(x, y);
   _tft.print(value, decimalPlaces);
   if (color != color_black) { _tft.setTextColor(color_black); }
+}
+
+void Screen::UpdateSetpointLocation(int x, int y) {
+  setpointLocationXY[0] = x;
+  setpointLocationXY[1] = y;
 }
 
 void Screen::Test() {
@@ -200,17 +205,10 @@ void Screen::ShowSetpointMenu(double setpoint) {
   _tft.fillScreen(color_white);
   _tft.setTextColor(color_black );
   _tft.setTextSize(2);
-  _tft.setCursor(20, 210);
-  _tft.print("Inc    Dec    OK");
-  _tft.setCursor(20, 50);
-  _tft.print("Setpoint:");
-  _tft.setCursor(180, 50);
-  _tft.print(setpoint, 1);
-}
-
-void Screen::UpdateSetpointMenuSetpoint(double oldSetpoint, double newSetpoint) {
-  Print(180, 50, oldSetpoint, 1, color_white);
-  Print(180, 50, newSetpoint, 1);
+  Print(20, 210, "Inc    Dec    OK");
+  Print(20, 50, "Setpoint:");
+  UpdateSetpointLocation(180, 50);
+  Print(180, 50, setpoint, 1);
 }
 
 void Screen::ShowDiagnostics(double current, double volts, double power, double resistance, double kp, double ki, double kd) {
@@ -262,14 +260,14 @@ void Screen::ShowMain(double setpoint, double temperature) {
   _tft.fillScreen(color_white);
   _tft.setTextSize(2);
 
-  _tft.setCursor(70,30);
-  _tft.print("Temperature");
+  Print(70,30, "Temperature");
   _tft.drawFastHLine(0, 41, 440, 0x0000);
   _tft.drawFastHLine(0, 42, 440, 0x0000);
   _tft.drawFastHLine(0, 43, 440, 0x0000);
   _tft.drawFastHLine(0, 44, 440, 0x0000);
   _tft.drawFastHLine(0, 45, 440, 0x0000);
-  
+
+  UpdateSetpointLocation(LCol2, LLine1);
   Print(LCol2, LLine1, setpoint, 1);
   
   if(setpoint > 0) {
@@ -278,12 +276,9 @@ void Screen::ShowMain(double setpoint, double temperature) {
     Pause();
   }
   
-  _tft.setCursor(LCol1, LLine1);
-  _tft.print("Setpoint ");
-  _tft.setCursor(LCol1, LLine2);
-  _tft.print("Actual ");
-  _tft.setCursor(LCol2, LLine2);
-  _tft.print(temperature, 1);
+  Print(LCol1, LLine1, "Setpoint ");
+  Print(LCol1, LLine2, "Actual ");
+  Print(LCol2, LLine2, temperature, 1);
 
   // up arrow
   _tft.drawFastVLine(70, 200, 30, 0x000);
@@ -339,8 +334,7 @@ void Screen::ShowScreenTestMenu() {
   _tft.fillScreen(ILI9341_BLACK);
   _tft.setTextColor(ILI9341_WHITE);
   _tft.setTextSize(3);
-  _tft.setCursor(SCol1, SLine1);
-  _tft.print("Display Test");
+  Print(SCol1, SLine1, "Display Test");
   _tft.setCursor(SCol1, SLine2);
   _tft.setCursor(SCol1, SLine1+50);
   _tft.println("1 = Run        ");
@@ -348,16 +342,14 @@ void Screen::ShowScreenTestMenu() {
   _tft.println("2 =            ");
   _tft.setCursor(SCol1, SLine1+110);
   _tft.println("3 = Exit       ");
-  _tft.setCursor(SCol1, SLine4);
-  _tft.print(" 1      2      3 ");
+  Print(SCol1, SLine4, " 1      2      3 ");
 }
 
 void Screen::ShowHeaterTestMenu() {
   _tft.fillScreen(ILI9341_BLACK);
   _tft.setTextColor(ILI9341_WHITE);
   _tft.setTextSize(3);
-  _tft.setCursor(SCol1, SLine1);
-  _tft.print("Heater Test");
+  Print(SCol1, SLine1, "Heater Test");
   _tft.setCursor(SCol1, SLine1+50);
   _tft.println("1 = Run        ");
   _tft.setCursor(SCol1, SLine1+80);
@@ -386,8 +378,7 @@ void Screen::ShowHeaterTestDriveResults(int drive, double temperature, double vo
   _tft.println(" W");
   _tft.print("  Htr R = ");
   _tft.println(resistance, 0);
-  _tft.setCursor(SCol1, SLine4);
-  _tft.print(" Inc   Dec  Exit ");   
+  Print(SCol1, SLine4, " Inc   Dec  Exit ");   
 }
 
 void Screen::ShowHeaterTestDriveHeader(int drive) {
@@ -404,8 +395,7 @@ void Screen::ShowWatchdogTestMenu() {
   _tft.fillScreen(ILI9341_BLACK);
   _tft.setTextColor(ILI9341_WHITE);
   _tft.setTextSize(3);
-  _tft.setCursor(SCol1, SLine1);
-  _tft.print("Watch Dog Test");
+  Print(SCol1, SLine1, "Watch Dog Test");
   _tft.setCursor(SCol1, SLine1+50);
   _tft.println("1 = Run        ");
   _tft.setCursor(SCol1, SLine1+80);
@@ -419,16 +409,14 @@ void Screen::ShowAliTestMenu() {
   _tft.fillScreen(ILI9341_BLACK);
   _tft.setTextColor(ILI9341_WHITE);
   _tft.setTextSize(2);
-  _tft.setCursor(SCol1, SLine1);
-  _tft.print("ALI Tests");
+  Print(SCol1, SLine1, "ALI Tests");
   _tft.setCursor(SCol1, SLine1+50);
   _tft.println("1 = Heater    ");
   _tft.setCursor(SCol1, SLine1+80);
   _tft.println("2 = Display       ");
   _tft.setCursor(SCol1, SLine1+110);
   _tft.println("3 = More       ");
-  _tft.setCursor(SCol1, SLine4);
-  _tft.print(" 1      2      3 ");
+  Print(SCol1, SLine4, " 1      2      3 ");
 }
 
 void Screen::ShowMoreAliTestMenu() {
@@ -443,43 +431,35 @@ void Screen::ShowMoreAliTestMenu() {
   _tft.println("2 = More  ");
   _tft.setCursor(SCol1, SLine1+110);
   _tft.println("3 = Exit        ");
-  _tft.setCursor(SCol1, SLine4);
-  _tft.print(" 1      2      3 ");
+  Print(SCol1, SLine4, " 1      2      3 ");
 }
 
 void Screen::ShowGoodbye() {
   _tft.fillScreen(ILI9341_BLACK);
   _tft.setTextColor(ILI9341_WHITE);
   _tft.setTextSize(3);
-  _tft.setCursor(SCol1, SLine1);
-  _tft.print("Goodbye");
+  Print(SCol1, SLine1, "Goodbye");
 }
 
 void Screen::ShowTestingHeader() {
   _tft.fillScreen(color_white);
-  _tft.setCursor(20, 50);
   _tft.setTextSize(2);
-  _tft.print("Testing ... ");
+  Print(20, 50, "Testing ... ");
 }
 
 void Screen::ShowUseLastSetpointQuestion(double setpoint) {
   _tft.fillScreen(color_white);
-  _tft.setCursor(20, 50);
   _tft.setTextSize(2);
-  _tft.print("Last Set at ");
-  Serial.println(setpoint);
+  Print(20, 50, "Last Set at ");
   _tft.print(setpoint, 1);
-  _tft.setCursor(20, 90);
-  _tft.print("Use This ?");
-  _tft.setCursor(55, 210);
-  _tft.print("Yes");
-  _tft.setCursor(155, 210);
-  _tft.print("No");
+  Print(20, 90, "Use This ?");
+  Print(35, 220, "Yes");
+  Print(135, 220, "No");
 }
 
 void Screen::UpdateSetpoint(double oldSetpoint, double newSetpoint) {
-  Print(LCol2, LLine1, oldSetpoint, 1, color_white);
-  Print(LCol2, LLine1, newSetpoint, 1);
+  Print(setpointLocationXY[0], setpointLocationXY[1], oldSetpoint, 1, color_white);
+  Print(setpointLocationXY[0], setpointLocationXY[1], newSetpoint, 1);
 }
 
 void Screen::UpdateTemperature(double oldTemperature, double newTemperature) {
@@ -514,7 +494,7 @@ void Screen::ShowArcLogo(void (*delayRoutine)(int)) {
   _tft.fillScreen(color_white);
   _tft.setCursor(30, 40);
   _tft.setTextColor(color_black);
-  _tft.println("  ARC Eclipse");
+  _tft.println("   ARC Eclipse");
   _tft.println("");
   _tft.print("    Software ");
   _tft.println(Ver);

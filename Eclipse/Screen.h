@@ -16,7 +16,6 @@ class Screen {
     void ShowTriangleFour();
     void ShowPidComponentMenu(const char* pidOption, double pidValue);
     void ShowSetpointMenu(double setpoint);
-    void UpdateSetpointMenuSetpoint(double oldSetpoint, double newSetpoint);
     void ShowDiagnostics(double current, double volts, double power, double resistance, double kp, double ki, double kd);
     void ShowMain(double setpoint, double temperature);
     void PrintTftDataToSerial();
@@ -41,6 +40,8 @@ class Screen {
     
   private:
     Adafruit_ILI9341 _tft;
+    int setpointLocationXY[2];
+    void UpdateSetpointLocation(int x, int y);
     void Print(int x, int y, char* value, int color = ILI9341_BLACK);
     void Print(int x, int y, int value, int color = ILI9341_BLACK);
     void Print(int x, int y, double value, int decimalPlaces, int color = ILI9341_BLACK);

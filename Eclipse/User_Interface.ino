@@ -2,7 +2,6 @@ void All_Keys_False() {
     KEY1 = false;
     KEY2 = false;
     KEY3 = false;
-    KEY4 = false;
 }
 
 void get_info() {
@@ -49,34 +48,17 @@ void wait_4_key_press() {
 void set_Setpoint(){
   screen->ShowSetpointMenu(Setpoint);
   wait_4_key_press();
-  int Down = 0;
   while (true) {
-    Run_PID();
-    Down = 0;
     while (PushButtonOneIsDepressed()) {
-      if (Setpoint <= 800) {
-        strobe_WDT();
-        double oldSetpoint = Setpoint;
-        Setpoint += 0.1;
-        screen->UpdateSetpointMenuSetpoint(oldSetpoint, Setpoint);
-        if (Down++ < 10) { delay_WDT(100); }
-      }
+      setpointController->IncrementSetpoint(&delay_WDT, &PushButtonOneIsNotDepressed);
     }
-    Down = 0;
-    while (PushButtonTwoIsDepressed()){
-      if (Setpoint > 0) {
-        strobe_WDT();
-        double oldSetpoint = Setpoint;
-        Setpoint -= 0.1;
-        screen->UpdateSetpointMenuSetpoint(oldSetpoint, Setpoint);
-        if (Down++ < 10) { delay_WDT(100); }
-      }
+    while (PushButtonTwoIsDepressed()) {
+      setpointController->DecrementSetpoint(&delay_WDT,&PushButtonTwoIsNotDepressed);
     }
     if (PushButtonThreeIsDepressed()) { break; }
   }
   while (AtLeastOneButtonIsDepressed()) // wait for all keys up
   All_Keys_False();
-  Write_NVM();
 }
 
 void set_Kp()

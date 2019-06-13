@@ -1,5 +1,5 @@
-void Run_PID()  // takes about 60 mS to run
-{
+void Run_PID() { // takes about 60 mS to run
+
   long Tin;
 
   now = millis();
@@ -32,14 +32,12 @@ void Run_PID()  // takes about 60 mS to run
     
     error = Setpoint - Input;  //Compute all the working error variables
     
-    if (error >  20)    // Use straight prop control until we get close
-    {
+    if (error >  20) { // use straight prop control until we get close
+    
         PTerm = 15 * error;  // hardwire kp at 15 and hold I in reset
         ITerm = 0;
         DTerm = 0;
-    }
-    else
-    {
+    } else {
         ITerm += ((ki / 100) * error);
         if (ITerm > outMax) ITerm = outMax;
         else if (ITerm < outMin) ITerm = outMin;
@@ -61,12 +59,9 @@ void Run_PID()  // takes about 60 mS to run
     Filtered_Out = Smooth_Output(Tin);
     Filtered_Out = Filtered_Out/10;
 
-    if (OutFilt_State == true)
-    {
+    if (OutFilt_State == true) {
         Output = Filtered_Out;
-    }
-    else
-    {
+    } else {
         Output = Unfiltered_Out;
     }
     lastInput = Input;  //Remember some variables for next time
@@ -126,8 +121,7 @@ long Calc_Delta_T(int M) {
   return delta_temp;
 }
 
-void SetTunings(double Kp, double Ki, double Kd)
-{
+void SetTunings(double Kp, double Ki, double Kd) {
   if (Kp < 0 || Ki < 0 || Kd < 0) return;
 
   double SampleTimeInSec = ((double)SampleTime) / 1000;
@@ -135,8 +129,7 @@ void SetTunings(double Kp, double Ki, double Kd)
   ki = Ki * SampleTimeInSec;
   kd = Kd / SampleTimeInSec;
 
-  if (controllerDirection == REVERSE)
-  {
+  if (controllerDirection == REVERSE) {
     kp = (0 - kp);
     ki = (0 - ki);
     kd = (0 - kd);
@@ -144,10 +137,8 @@ void SetTunings(double Kp, double Ki, double Kd)
 }
 void SetSampleTime(int NewSampleTime)
 {
-  if (NewSampleTime > 0)
-  {
-    double ratio  = (double)NewSampleTime
-                    / (double)SampleTime;
+  if (NewSampleTime > 0)   {
+    double ratio  = (double)NewSampleTime / (double)SampleTime;
     ki *= ratio;
     kd /= ratio;
     SampleTime = (unsigned long)NewSampleTime;
@@ -167,8 +158,7 @@ void SetOutputLimits(double Min, double Max)
   else if (ITerm < outMin) ITerm = outMin;
 }
 
-void SetMode(int Mode)
-{
+void SetMode(int Mode) {
   bool newAuto = (Mode == AUTOMATIC);
   if (newAuto == !inAuto)
   { /*we just went from manual to auto*/
@@ -177,15 +167,13 @@ void SetMode(int Mode)
   inAuto = newAuto;
 }
 
-void InitializePID()
-{
+void InitializePID() {
   lastInput = Input;
   ITerm = Output;
   if (ITerm > outMax) ITerm = outMax;
   else if (ITerm < outMin) ITerm = outMin;
 }
 
-void SetControllerDirection(int Direction)
-{
+void SetControllerDirection(int Direction) {
   controllerDirection = Direction;
 }
