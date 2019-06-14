@@ -7,14 +7,16 @@ class Screen {
   public:
 
     Screen(int8_t csPin, int8_t dcPin);
-    void Test();
     void TurnOff();
+    void ShowSplashScreen(void (*delayRoutine)(int));
+    void Test();
     void ShowPidMenu();
     void ShowTriangleOne();
     void ShowTriangleTwo();
     void ShowTriangleThree();
     void ShowTriangleFour();
     void ShowPidComponentMenu(const char* pidOption, double pidValue);
+    void UpdatePidComponentValue(const char* pidOption, double oldValue, double newValue);
     void ShowSetpointMenu(double setpoint);
     void ShowDiagnostics(double current, double volts, double power, double resistance, double kp, double ki, double kd);
     void ShowMain(double setpoint, double temperature);
@@ -36,7 +38,6 @@ class Screen {
     void RemoveTemperatureStar();
     void Pause();
     void Resume();
-    void ShowArcLogo(void (*delayRoutine)(int));
     
   private:
     Adafruit_ILI9341 _tft;
@@ -49,6 +50,9 @@ class Screen {
     void SetTriangleTwoColor(int color);
     void SetTriangleThreeColor(int color);
     void SetTriangleFourColor(int color);
+    void DrawUpArrow(int color);
+    void DrawDownArrow(int color);
+    void DrawNumberedMenu(char* header, char* buttonOne, char* buttonTwo, char* buttonThree);
     unsigned long testFilledRoundRects();
     unsigned long testRoundRects();
     unsigned long testFilledTriangles();

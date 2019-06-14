@@ -38,3 +38,14 @@ bool PushButtonThreeIsNotDepressed() {
 bool AtLeastOneButtonIsDepressed() {
   return PowerButtonIsDepressed() || PushButtonOneIsDepressed() || PushButtonTwoIsDepressed() || PushButtonThreeIsDepressed();
 }
+
+int GetNextButtonPress() {
+  while (AtLeastOneButtonIsDepressed()) { Run_PID(); }
+  while (true) {
+    if (PowerButtonIsDepressed()) { state = OFF; return PowerButton; }
+    if (PushButtonOneIsDepressed()) { return PushButtonOne; }
+    if (PushButtonTwoIsDepressed()) { return PushButtonTwo; }
+    if (PushButtonThreeIsDepressed()) { return PushButtonThree; }
+    Run_PID(); 
+  }
+}

@@ -1,5 +1,3 @@
-
-
 void print_datalog_header()
 {
   if (DEBUG_MODE_IS_ON)
@@ -45,7 +43,6 @@ void print_datalog_header()
 
 void print_datalog_data()
 {
-  Serial.println();
   print_datalog_header();
   if (DEBUG_MODE_IS_ON)
   {
@@ -84,6 +81,6 @@ void print_datalog_data()
     Serial.print(Fault_Count, 1);
     Serial.print(",");
     Serial.print(state, 1);
-    Serial.print("\n");
+    Serial.println();
   }
 }

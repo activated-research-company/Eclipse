@@ -13,14 +13,12 @@ void read_Volts()
 void read_Current()
 {
   Current = 0;                        // Clear Average
-  for (int i = 0; i <= 255; i++) {    // Get the value of full current
+  for (int i = 0; i < 100; i++) {    // Get the value of full current
     Current += analogRead(0);
-    delay(1);
-    strobe_WDT();
+    delay_WDT(1);
   }
-  Current = Current / 256;            // Calculate Average value  
-  if (Current < 0) 
-     Current = 0;
+  Current = Current / 100;            // Calculate Average value  
+  if (Current < 0) { Current = 0; }
 }
 
 void calc_MidPt()  // Calculate the middle or zero point of the current sensor .. Must have heater off to do so

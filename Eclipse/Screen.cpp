@@ -2,9 +2,6 @@
 #include "Adafruit_ILI9341.h"
 #include <Fonts/FreeSans9pt7b.h>
 
-#define color_black 0x0000 //replace with ILI9341_BLACK
-#define color_white 0xFFFF //replace with ILI9341_WHITE
-
 #define SLine1 10 // these are for graphics use
 #define SLine2 50 // they define the line starts in pixels
 #define SLine3 120
@@ -26,29 +23,29 @@ static const uint8_t PROGMEM arcLogo[] = {
 Screen::Screen(int8_t csPin, int8_t dcPin):
   _tft(csPin, dcPin) {
   _tft.begin();
-  _tft.fillScreen(color_black);
+  _tft.fillScreen(ILI9341_BLACK);
   _tft.setFont(&FreeSans9pt7b);
 }
 
-void Screen::Print(int x, int y, char* value, int color = color_black) {
+void Screen::Print(int x, int y, char* value, int color = ILI9341_BLACK) {
   _tft.setTextColor(color);
   _tft.setCursor(x, y);
   _tft.print(value);
-  if (color != color_black) { _tft.setTextColor(color_black); }
+  if (color != ILI9341_BLACK) { _tft.setTextColor(ILI9341_BLACK); }
 }
 
-void Screen::Print(int x, int y, int value, int color = color_black) {
+void Screen::Print(int x, int y, int value, int color = ILI9341_BLACK) {
   _tft.setTextColor(color);
   _tft.setCursor(x, y);
   _tft.print(value);
-  if (color != color_black) { _tft.setTextColor(color_black); }
+  if (color != ILI9341_BLACK) { _tft.setTextColor(ILI9341_BLACK); }
 }
 
-void Screen::Print(int x, int y, double value, int decimalPlaces, int color = color_black) {
+void Screen::Print(int x, int y, double value, int decimalPlaces, int color = ILI9341_BLACK) {
   _tft.setTextColor(color);
   _tft.setCursor(x, y);
   _tft.print(value, decimalPlaces);
-  if (color != color_black) { _tft.setTextColor(color_black); }
+  if (color != ILI9341_BLACK) { _tft.setTextColor(ILI9341_BLACK); }
 }
 
 void Screen::UpdateSetpointLocation(int x, int y) {
@@ -101,13 +98,13 @@ void Screen::Test() {
 }
 
 void Screen::TurnOff() {
-  _tft.fillScreen(color_black);
+  _tft.fillScreen(ILI9341_BLACK);
 }
 
 void Screen::ShowPidMenu() {
     _tft.setTextSize(2);
+    _tft.fillScreen(ILI9341_WHITE);
     _tft.setCursor(20,20);
-    _tft.fillScreen(color_white);
     _tft.println("Menu");
     _tft.setCursor(30, 50);
     ShowTriangleOne();
@@ -127,31 +124,31 @@ void Screen::ShowPidMenu() {
 }
 
 void Screen::ShowTriangleOne() {
-  SetTriangleOneColor(color_black);
-  SetTriangleTwoColor(color_white);
-  SetTriangleThreeColor(color_white);
-  SetTriangleFourColor(color_white);
+  SetTriangleOneColor(ILI9341_BLACK);
+  SetTriangleTwoColor(ILI9341_WHITE);
+  SetTriangleThreeColor(ILI9341_WHITE);
+  SetTriangleFourColor(ILI9341_WHITE);
 }
 
 void Screen::ShowTriangleTwo() {
-  SetTriangleOneColor(color_white);
-  SetTriangleTwoColor(color_black);
-  SetTriangleThreeColor(color_white);
-  SetTriangleFourColor(color_white);
+  SetTriangleOneColor(ILI9341_WHITE);
+  SetTriangleTwoColor(ILI9341_BLACK);
+  SetTriangleThreeColor(ILI9341_WHITE);
+  SetTriangleFourColor(ILI9341_WHITE);
 }
  
 void Screen::ShowTriangleThree() {
-  SetTriangleOneColor(color_white);
-  SetTriangleTwoColor(color_white);
-  SetTriangleThreeColor(color_black);
-  SetTriangleFourColor(color_white);
+  SetTriangleOneColor(ILI9341_WHITE);
+  SetTriangleTwoColor(ILI9341_WHITE);
+  SetTriangleThreeColor(ILI9341_BLACK);
+  SetTriangleFourColor(ILI9341_WHITE);
 }
 
 void Screen::ShowTriangleFour() {
-  SetTriangleOneColor(color_white);
-  SetTriangleTwoColor(color_white);
-  SetTriangleThreeColor(color_white);
-  SetTriangleFourColor(color_black);
+  SetTriangleOneColor(ILI9341_WHITE);
+  SetTriangleTwoColor(ILI9341_WHITE);
+  SetTriangleThreeColor(ILI9341_WHITE);
+  SetTriangleFourColor(ILI9341_BLACK);
 }
 
 void Screen::SetTriangleOneColor(int color) {
@@ -171,41 +168,37 @@ void Screen::SetTriangleFourColor(int color) {
 }
 
 void Screen::ShowPidComponentMenu(const char* pidOption, double pidValue) {
-  _tft.fillScreen(color_white);
-  _tft.setTextColor(color_black);
+  _tft.fillScreen(ILI9341_WHITE);
+  _tft.setTextColor(ILI9341_BLACK);
   _tft.setTextSize(2);
-  _tft.setCursor(20, 30);
-  _tft.print("Set ");
+  Print(20, 30, "Set ");
   _tft.print(pidOption);
-  _tft.setCursor(20, 70);
-  _tft.print(pidOption);
-  _tft.print(" = ");
-  _tft.print(pidValue);
-  
-  // up arrow
-  _tft.drawFastVLine(70, 200, 30, 0x000);
-  _tft.drawFastVLine(71, 200, 30, 0x000);
-  _tft.drawFastVLine(72, 200, 30, 0x000);
-  _tft.drawFastVLine(73, 200, 30, 0x000);
-  _tft.drawFastVLine(74, 200, 30, 0x000);
-  _tft.fillTriangle(72, 190, 60, 210, 84, 210, 0x0000);
-
-  // down arrow
-  _tft.drawFastVLine(160, 190, 30, 0x000);
-  _tft.drawFastVLine(161, 190, 30, 0x000);
-  _tft.drawFastVLine(162, 190, 30, 0x000);
-  _tft.drawFastVLine(163, 190, 30, 0x000);
-  _tft.drawFastVLine(164, 190, 30, 0x000);
-  _tft.fillTriangle(162, 230, 150, 210, 174, 210, 0x0000);
-
+  UpdatePidComponentValue(pidOption, pidValue, pidValue);
+  DrawUpArrow(ILI9341_BLACK);
+  DrawDownArrow(ILI9341_BLACK);
   Print(240, 220, "Ok");
 }
 
+void Screen::UpdatePidComponentValue(const char* pidOption, double oldValue, double newValue) {
+  _tft.setTextColor(ILI9341_WHITE);
+  _tft.setCursor(20, 70);
+  _tft.print(pidOption);
+  _tft.print(" = ");
+  _tft.print(oldValue, 0);
+  _tft.setTextColor(ILI9341_BLACK);
+  _tft.setCursor(20, 70);
+  _tft.print(pidOption);
+  _tft.print(" = ");
+  _tft.print(newValue, 0);
+}
+
 void Screen::ShowSetpointMenu(double setpoint) {
-  _tft.fillScreen(color_white);
-  _tft.setTextColor(color_black );
+  _tft.fillScreen(ILI9341_WHITE);
+  _tft.setTextColor(ILI9341_BLACK );
   _tft.setTextSize(2);
-  Print(20, 210, "Inc    Dec    OK");
+  DrawUpArrow(ILI9341_BLACK);
+  DrawDownArrow(ILI9341_BLACK);
+  Print(225, 210, "OK");
   Print(20, 50, "Setpoint:");
   UpdateSetpointLocation(180, 50);
   Print(180, 50, setpoint, 1);
@@ -214,7 +207,7 @@ void Screen::ShowSetpointMenu(double setpoint) {
 void Screen::ShowDiagnostics(double current, double volts, double power, double resistance, double kp, double ki, double kd) {
   _tft.setTextSize(1);
   _tft.setCursor(20,30);
-  _tft.fillScreen(color_white);
+  _tft.fillScreen(ILI9341_WHITE);
   
   _tft.print("Curr = ");
   _tft.setCursor(150,30);
@@ -257,7 +250,7 @@ void Screen::ShowDiagnostics(double current, double volts, double power, double 
 
 void Screen::ShowMain(double setpoint, double temperature) {
 
-  _tft.fillScreen(color_white);
+  _tft.fillScreen(ILI9341_WHITE);
   _tft.setTextSize(2);
 
   Print(70,30, "Temperature");
@@ -280,23 +273,52 @@ void Screen::ShowMain(double setpoint, double temperature) {
   Print(LCol1, LLine2, "Actual ");
   Print(LCol2, LLine2, temperature, 1);
 
-  // up arrow
-  _tft.drawFastVLine(70, 200, 30, 0x000);
-  _tft.drawFastVLine(71, 200, 30, 0x000);
-  _tft.drawFastVLine(72, 200, 30, 0x000);
-  _tft.drawFastVLine(73, 200, 30, 0x000);
-  _tft.drawFastVLine(74, 200, 30, 0x000);
-  _tft.fillTriangle(72, 190, 60, 210, 84, 210, 0x0000);
-
-  // down arrow
-  _tft.drawFastVLine(160, 190, 30, 0x000);
-  _tft.drawFastVLine(161, 190, 30, 0x000);
-  _tft.drawFastVLine(162, 190, 30, 0x000);
-  _tft.drawFastVLine(163, 190, 30, 0x000);
-  _tft.drawFastVLine(164, 190, 30, 0x000);
-  _tft.fillTriangle(162, 230, 150, 210, 174, 210, 0x0000);
+  DrawUpArrow(ILI9341_BLACK);
+  DrawDownArrow(ILI9341_BLACK);
   
   _tft.setCursor(240, 220);
+}
+
+void Screen::DrawDownArrow(int color) {
+  _tft.drawFastVLine(160, 190, 30, color);
+  _tft.drawFastVLine(161, 190, 30, color);
+  _tft.drawFastVLine(162, 190, 30, color);
+  _tft.drawFastVLine(163, 190, 30, color);
+  _tft.drawFastVLine(164, 190, 30, color);
+  _tft.fillTriangle(162, 230, 150, 210, 174, 210, color);
+}
+
+void Screen::DrawUpArrow(int color) {
+  _tft.drawFastVLine(70, 200, 30, color);
+  _tft.drawFastVLine(71, 200, 30, color);
+  _tft.drawFastVLine(72, 200, 30, color);
+  _tft.drawFastVLine(73, 200, 30, color);
+  _tft.drawFastVLine(74, 200, 30, color);
+  _tft.fillTriangle(72, 190, 60, 210, 84, 210, color);
+}
+
+void Screen::DrawNumberedMenu(char* header, char* buttonOne, char* buttonTwo, char* buttonThree) {
+  _tft.fillScreen(ILI9341_WHITE);
+  _tft.setRotation(1);
+  _tft.setTextSize(2);
+
+  Print(SCol1, SLine2-10, header);
+  
+  if (buttonOne != NULL) {
+    Print(SCol1, SLine2+40, "1 = ");
+    Print(SCol1+65, SLine2+40, buttonOne);
+    Print(SCol1+37, SLine4+15, "1");
+  }
+  if (buttonTwo != NULL) {
+    Print(SCol1, SLine2+75, "2 = ");
+    Print(SCol1+65, SLine2+75, buttonTwo);
+    Print(SCol1+129, SLine4+15, "2");
+  }
+  if (buttonThree != NULL) {
+    Print(SCol1, SLine2+110, "3 = ");
+    Print(SCol1+65, SLine2+110, buttonThree);
+    Print(SCol1+223, SLine4+15, "3");
+  }
 }
 
 void Screen::PrintTftDataToSerial() {
@@ -321,7 +343,7 @@ void Screen::PrintTftDataToSerial() {
 }
 
 void Screen::ShowPolyarcNotFound() {
-  _tft.fillScreen(color_white);
+  _tft.fillScreen(ILI9341_WHITE);
   _tft.setCursor(00, 50);
   _tft.println("  Polyarc Not Found");
   _tft.println("  Check All");
@@ -331,35 +353,16 @@ void Screen::ShowPolyarcNotFound() {
 }
 
 void Screen::ShowScreenTestMenu() {
-  _tft.fillScreen(ILI9341_BLACK);
-  _tft.setTextColor(ILI9341_WHITE);
-  _tft.setTextSize(3);
-  Print(SCol1, SLine1, "Display Test");
-  _tft.setCursor(SCol1, SLine2);
-  _tft.setCursor(SCol1, SLine1+50);
-  _tft.println("1 = Run        ");
-  _tft.setCursor(SCol1, SLine1+80);
-  _tft.println("2 =            ");
-  _tft.setCursor(SCol1, SLine1+110);
-  _tft.println("3 = Exit       ");
-  Print(SCol1, SLine4, " 1      2      3 ");
+  DrawNumberedMenu("Display Test", "Run", "Exit", NULL);
 }
 
 void Screen::ShowHeaterTestMenu() {
-  _tft.fillScreen(ILI9341_BLACK);
-  _tft.setTextColor(ILI9341_WHITE);
-  _tft.setTextSize(3);
-  Print(SCol1, SLine1, "Heater Test");
-  _tft.setCursor(SCol1, SLine1+50);
-  _tft.println("1 = Run        ");
-  _tft.setCursor(SCol1, SLine1+80);
-  _tft.println("2 =            ");
-  _tft.setCursor(SCol1, SLine1+110);
-  _tft.println("3 = Exit       ");
+  DrawNumberedMenu("Heater Test", "Run", "Exit", NULL);
 }
 
 void Screen::ShowHeaterTestDriveResults(int drive, double temperature, double volts, double current, double power, double resistance) {
-  _tft.fillScreen(ILI9341_BLACK);
+  _tft.fillScreen(ILI9341_WHITE);
+  _tft.setTextSize(1);
   _tft.setCursor(0, 0);
   _tft.println();
   _tft.print("  Results D = ");
@@ -378,12 +381,13 @@ void Screen::ShowHeaterTestDriveResults(int drive, double temperature, double vo
   _tft.println(" W");
   _tft.print("  Htr R = ");
   _tft.println(resistance, 0);
+  _tft.setTextSize(2);
   Print(SCol1, SLine4, " Inc   Dec  Exit ");   
 }
 
 void Screen::ShowHeaterTestDriveHeader(int drive) {
+  _tft.fillScreen(ILI9341_WHITE);
   _tft.setRotation(1);
-  _tft.fillScreen(ILI9341_BLACK);
   _tft.setCursor(0, 0);
   _tft.println();
   _tft.println("  *** Testing ***");
@@ -392,63 +396,25 @@ void Screen::ShowHeaterTestDriveHeader(int drive) {
 }
 
 void Screen::ShowWatchdogTestMenu() {
-  _tft.fillScreen(ILI9341_BLACK);
-  _tft.setTextColor(ILI9341_WHITE);
-  _tft.setTextSize(3);
-  Print(SCol1, SLine1, "Watch Dog Test");
-  _tft.setCursor(SCol1, SLine1+50);
-  _tft.println("1 = Run        ");
-  _tft.setCursor(SCol1, SLine1+80);
-  _tft.println("2 =            ");
-  _tft.setCursor(SCol1, SLine1+110);
-  _tft.println("3 = Exit       ");
+  DrawNumberedMenu("Watch Dog Test", "Run", "Exit", NULL);
 }
 
 void Screen::ShowAliTestMenu() {
-  _tft.setRotation(1);
-  _tft.fillScreen(ILI9341_BLACK);
-  _tft.setTextColor(ILI9341_WHITE);
-  _tft.setTextSize(2);
-  Print(SCol1, SLine1, "ALI Tests");
-  _tft.setCursor(SCol1, SLine1+50);
-  _tft.println("1 = Heater    ");
-  _tft.setCursor(SCol1, SLine1+80);
-  _tft.println("2 = Display       ");
-  _tft.setCursor(SCol1, SLine1+110);
-  _tft.println("3 = More       ");
-  Print(SCol1, SLine4, " 1      2      3 ");
+  DrawNumberedMenu("ALI Tests", "Heater", "Display", "More");
 }
 
 void Screen::ShowMoreAliTestMenu() {
-  _tft.fillScreen(ILI9341_BLACK);
-  _tft.setTextColor(ILI9341_WHITE);
-  _tft.setTextSize(2);
-  _tft.setCursor(SCol1, SLine1);
-  _tft.print("ALI Tests");
-  _tft.setCursor(SCol1, SLine1+50);
-  _tft.println("1 = Watch Dog    ");
-  _tft.setCursor(SCol1, SLine1+80);
-  _tft.println("2 = More  ");
-  _tft.setCursor(SCol1, SLine1+110);
-  _tft.println("3 = Exit        ");
-  Print(SCol1, SLine4, " 1      2      3 ");
-}
-
-void Screen::ShowGoodbye() {
-  _tft.fillScreen(ILI9341_BLACK);
-  _tft.setTextColor(ILI9341_WHITE);
-  _tft.setTextSize(3);
-  Print(SCol1, SLine1, "Goodbye");
+  DrawNumberedMenu("ALI Tests", "Watch Dog", "Back", "Exit");
 }
 
 void Screen::ShowTestingHeader() {
-  _tft.fillScreen(color_white);
+  _tft.fillScreen(ILI9341_WHITE);
   _tft.setTextSize(2);
   Print(20, 50, "Testing ... ");
 }
 
 void Screen::ShowUseLastSetpointQuestion(double setpoint) {
-  _tft.fillScreen(color_white);
+  _tft.fillScreen(ILI9341_WHITE);
   _tft.setTextSize(2);
   Print(20, 50, "Last Set at ");
   _tft.print(setpoint, 1);
@@ -458,12 +424,12 @@ void Screen::ShowUseLastSetpointQuestion(double setpoint) {
 }
 
 void Screen::UpdateSetpoint(double oldSetpoint, double newSetpoint) {
-  Print(setpointLocationXY[0], setpointLocationXY[1], oldSetpoint, 1, color_white);
+  Print(setpointLocationXY[0], setpointLocationXY[1], oldSetpoint, 1, ILI9341_WHITE);
   Print(setpointLocationXY[0], setpointLocationXY[1], newSetpoint, 1);
 }
 
 void Screen::UpdateTemperature(double oldTemperature, double newTemperature) {
-  Print(LCol2, LLine2, oldTemperature, 1, color_white);
+  Print(LCol2, LLine2, oldTemperature, 1, ILI9341_WHITE);
   Print(LCol2, LLine2, newTemperature, 1);
 }
 
@@ -472,28 +438,32 @@ void Screen::AddTemperatureStar() {
 }
 
 void Screen::RemoveTemperatureStar() {
-  Print(LCol2-20, LLine2, "*", color_white);
+  Print(LCol2-20, LLine2, "*", ILI9341_WHITE);
 }
 
 void Screen::Pause() {
-  Print(210, 220, "Pause", color_white);
-  Print(210, 220, "Resume");
+  Print(210, 220, "Pause", ILI9341_WHITE);
+  Print(185, 220, "Resume");
+  DrawUpArrow(ILI9341_WHITE);
+  DrawDownArrow(ILI9341_WHITE);
 }
 
 void Screen::Resume() {
-  Print(210, 220, "Resume", color_white);
+  Print(185, 220, "Resume", ILI9341_WHITE);
   Print(210, 220, "Pause");
+  DrawUpArrow(ILI9341_BLACK);
+  DrawDownArrow(ILI9341_BLACK);
 }
 
-void Screen::ShowArcLogo(void (*delayRoutine)(int)) {
+void Screen::ShowSplashScreen(void (*delayRoutine)(int)) {
   _tft.setTextSize(2);
   _tft.setRotation(1);
-  _tft.fillScreen(color_white);
+  _tft.fillScreen(ILI9341_WHITE);
   _tft.drawBitmap(50, 0, arcLogo, 256, 256, 0x001F);
   (*delayRoutine)(2000);
-  _tft.fillScreen(color_white);
+  _tft.fillScreen(ILI9341_WHITE);
   _tft.setCursor(30, 40);
-  _tft.setTextColor(color_black);
+  _tft.setTextColor(ILI9341_BLACK);
   _tft.println("   ARC Eclipse");
   _tft.println("");
   _tft.print("    Software ");

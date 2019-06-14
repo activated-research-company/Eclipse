@@ -30,7 +30,6 @@ unsigned long lastTime;   // used for integration time compute
 unsigned long now;        // used for integration time compute
 unsigned long timeChange;
 int PID_Ticks = 0;            // increments on 500mS tick (if PID loop is 500mS)
-bool refresh = 0;             // forces update of setpoint and temp after edit
 
 double Input = 0;
 double Output = 0;
@@ -67,8 +66,6 @@ int controllerDirection = DIRECT;
 double aggKp = 4, aggKi = 0.2, aggKd = 1;
 double consKp = 10, consKi = 0.0, consKd = 0.0;
 
-bool KEY1, KEY2, KEY3; // Pushbutton keys
-
 int fault;        // This group used for analog tests
 float Volts;
 float Current;
@@ -77,9 +74,6 @@ float Midpt;
 float Av;
 float Resistance;
 float Power;
-
-int set_on = 1;
-double set_rem;
 
 #define ST_SIZE 10            // This is the number of samples in the rolling average
 static int ST[ST_SIZE];      // Rolling average filter for input RTD
@@ -116,6 +110,11 @@ bool OutFilt_State = 0;
 
 bool WDT_State = 0;
 
+#define PowerButton 0
+#define PushButtonOne 1
+#define PushButtonTwo 2
+#define PushButtonThree 4
+
 int state;
 #define OFF 0
 #define ON 5
@@ -144,15 +143,16 @@ void setup() {
   OutFilt_State = 0; // int filter states, NVM recall will override later
   analogReference(INTERNAL2V56); // use 2.56 volts as reference
   analogWrite(FET_Pin, 0);
+  
   state = OFF;
 }
 
 void TurnOff() {
   screen->TurnOff();
-  set_rem = Setpoint;
   Setpoint = 0.0;
   analogWrite(FET_Pin, 0);
   PID_Ticks=0;
+  
   state = OFF;
 }
 
@@ -162,27 +162,11 @@ void strobe_WDT()
     digitalWrite(WDT , WDT_State);    //Write to strobe pin
 }
 
-void delay_WDT(int ms)   // use this instaed of delay function to prevent WDT time out
-{
-   int ticks;
-   for (ticks = 0; ticks < ms; ticks++)
-   {
+void delay_WDT(int ms) { // use this instaed of delay function to prevent WDT time out
+   for (int ticks = 0; ticks < ms; ticks++) {
       delay(1);
       strobe_WDT();
    }
-}
-
-void TestPIDTime(){
-    unsigned long SPID;
-    unsigned long EPID;
-    unsigned long ElapsedPID;
-
-    while (true){
-        Run_PID();
-        read_temp();
-        screen->UpdateTemperature(last_temperature, Temperature);
-        last_temperature = Temperature;
-    }
 }
 
 void loop() {
@@ -228,13 +212,14 @@ void WaitToBeTurnedOn() {
 
 void TurnOn() {
   digitalWrite(LEDA, HIGH);
-  Setpoint = set_rem;
-  refresh = 1;
-  screen->ShowArcLogo(&delay_WDT);
+  screen->ShowSplashScreen(&delay_WDT);
   state = TEST;
 }
 
 void RunTests() {
+
+  screen->ShowTestingHeader();
+  
   if (PushButtonOneIsDepressed() && PushButtonThreeIsDepressed())
   {
     ALI_Tests();
@@ -264,51 +249,31 @@ void RunTests() {
     Heater_PU_Test();     // This will set HTR_Fault if there is a problem
     if ((RTD_Fault) || (HTR_Fault)) {
         screen->ShowPolyarcNotFound();
-        wait_4_key_press();
+        GetNextButtonPress();
         return;
     }
+    
+    Analog_Tests(); // Run tests of Voltage and Heater Current
   }
+
+  state = RUN;
 }
 
 void Run() {
   
-  delay_WDT(1000);
-  analogWrite(FET_Pin, 0);
-  strobe_WDT();
-  screen->ShowTestingHeader();
-
-ST2:
-    RTD_Fault = 0;
-    HTR_Fault = 0;
-    read_temp_verbose();   // This will set RTD_Fault if there is a problem
-    Heater_PU_Test();     // This will set HTR_Fault if there is a problem
-    
-    if (!SKIP_TEST_MODE_IS_ON && ((RTD_Fault) || (HTR_Fault))) {
-        screen->ShowPolyarcNotFound();
-        wait_4_key_press();
-        goto ST2;
-    }
-    
-    Analog_Tests();           // Run tests of Voltage and Heater Current
-
     Recall_NVM();
+    
     screen->ShowUseLastSetpointQuestion(Setpoint);
-    wait_4_key_press();
     fault = 0;
-    if (KEY1)
-        goto SU1;
-    if (KEY2)
-        set_Setpoint();
-    if (KEY3)
-        goto ST2;              // Allows editting of SetPt, Kp, Ki, Kd
+    switch (GetNextButtonPress()) {
+      case PushButtonTwo: set_Setpoint(); break;
+    }
     if (fault != 0)         // check and see if we had a fault while editting setpoint or parameters
     {
         Break_Code = 5;
         goto FLT_Bail;
     }
 
-SU1:
-  Write_NVM();
   read_temp();             // Read the RTD for initial display of it
 
 SU2:
@@ -317,13 +282,10 @@ SU2:
   state = RUN;
   
   screen->ShowMain(Setpoint, Temperature);
+  last_temperature = Temperature;
   
   while (true) {
-
-    last_temperature = Temperature;
   
-    int down = 0;
-    int held = 0;
     double multi = 1;
     
     if (PowerButtonIsDepressed()) {
@@ -332,12 +294,13 @@ SU2:
         break;
     }
 
+    int held = 0;
+
     while (PushButtonOneIsDepressed() && PushButtonTwoIsDepressed()) {
       if (held > 3000) {
         state = EDIT;
         analogWrite(FET_Pin,0); 
         Edit_Parameters();
-        refresh = 1;
         PID_Ticks = 0;
         state = RUN;
       } else {
@@ -347,33 +310,20 @@ SU2:
       continue;
     }
   
-    while (PushButtonOneIsDepressed() and set_on) {
+    while (PushButtonOneIsDepressed()) {
       setpointController->IncrementSetpoint(&delay_WDT, &PushButtonOneIsNotDepressed);
     }
-    while (PushButtonTwoIsDepressed() and set_on) {
+    while (PushButtonTwoIsDepressed()) {
       setpointController->DecrementSetpoint(&delay_WDT, &PushButtonTwoIsNotDepressed);
     }
     
     if (PushButtonThreeIsDepressed()) {
-      if (set_on) {
-        Serial.println("**** User Hit Off Key ****");
-        analogWrite(FET_Pin,0); 
-        set_rem = Setpoint;
-        Setpoint = 0;
-        set_on = 0;
-        screen->Resume();
-        while (PushButtonThreeIsDepressed()){ }
-        delay_WDT(333);
-        continue;
-      } else {
-        analogWrite(FET_Pin,0); 
-        Setpoint = set_rem;
-        set_on = 1;
-        screen->Pause();
-        while (PushButtonThreeIsDepressed){ }
-        delay_WDT(333);
-        continue;
-      }
+      analogWrite(FET_Pin,0);
+      screen->Pause();
+      while (PushButtonThreeIsDepressed()) { strobe_WDT(); }
+      while (PushButtonThreeIsNotDepressed()) { strobe_WDT(); }
+      while (PushButtonThreeIsDepressed()) { strobe_WDT(); }
+      screen->Resume();
     }
 
     if (fault != 0) {         // check and see if we had a fault while editting setpoint or parameters
@@ -415,7 +365,6 @@ SU2:
     if (PID_Ticks == 2) {
       analogWrite(FET_Pin,0);  // turn off PWM and heater
       strobe_WDT();
-      delay(5);
       read_temp();     // read the temp
       
       if(RTD_Fault == 4) { // Look for RTD noise fault
@@ -431,7 +380,7 @@ SU2:
         Serial.println(); 
       }
              
-      if ((Temperature != last_temperature) || (refresh == 1)) { // Update TFT only if data has changed to reduce flicker
+      if ((Temperature != last_temperature)) { // update TFT only if data has changed to reduce flicker
         
         screen->UpdateTemperature(last_temperature, Temperature);
         last_temperature = Temperature;
@@ -444,14 +393,11 @@ SU2:
       }
     
       PID_Ticks = 0;
-      refresh = 0;
-      analogWrite(FET_Pin,Int_Out);
+      analogWrite(FET_Pin, Int_Out);
      }
   }
 
-// To get here, we bailed from main loop above because PB was pressed or we had a fault
-
-FLT_Bail:
+FLT_Bail: // power button or fault
 
   analogWrite(FET_Pin, 0);        // Turn Off Heater
 
@@ -463,13 +409,14 @@ FLT_Bail:
       Serial.println("PB Pressed .... Shutdown");
       break;
     case 2:
-      Serial.print("RTD Fault ..."); Serial.println(RTD_Fault);
+      Serial.print("RTD Fault ...");
+      Serial.println(RTD_Fault);
       break;
     case 3:
-      Serial.print("Heater Fault = "); Serial.println(HTR_Fault);
+      Serial.print("Heater Fault = ");
+      Serial.println(HTR_Fault);
       break;
     default:
       break;
   }
-  Setpoint = 0;
 }
