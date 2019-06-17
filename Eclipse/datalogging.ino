@@ -1,7 +1,6 @@
 void print_datalog_header()
 {
-  if (DEBUG_MODE_IS_ON)
-  {
+  #ifdef DEBUG_MODE
     Serial.print("Time");
     Serial.print(",");
     Serial.print("RTD"); 
@@ -38,14 +37,13 @@ void print_datalog_header()
     Serial.print(",");
     Serial.print("State");
     Serial.println();
-  }
+  #endif
 }
 
 void print_datalog_data()
 {
   print_datalog_header();
-  if (DEBUG_MODE_IS_ON)
-  {
+  #ifdef DEBUG_MODE
     Serial.print(now);
     Serial.print(",");
     Serial.print(Unfiltered_Temp, 2);
@@ -82,5 +80,5 @@ void print_datalog_data()
     Serial.print(",");
     Serial.print(state, 1);
     Serial.println();
-  }
+  #endif
 }

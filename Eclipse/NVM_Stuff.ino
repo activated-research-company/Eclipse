@@ -14,7 +14,7 @@
 #define NVM_OutFilt 8
 
 void NVM_Print() {
-  if (DEBUG_MODE_IS_ON) {
+  #ifdef DEBUG_MODE
     Serial.print("NVM_Flag = ");
     Serial.println(EEPROM.read(NVM_Flag));
     Serial.print("NVM_Kp = ");
@@ -32,7 +32,7 @@ void NVM_Print() {
     Serial.println(EEPROM.read(NVM_InFilt));
     Serial.print("NVM_OutFilt = ");
     Serial.println(EEPROM.read(NVM_OutFilt));
-  }
+  #endif
 }
 
 int Write_NVM() {

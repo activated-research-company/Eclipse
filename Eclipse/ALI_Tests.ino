@@ -1,7 +1,7 @@
 void ALI_Tests() { // test push buttons, display, RTD, heater, current sensor, WDT
   screen->ShowAliTestMenu();
 
-  switch (GetNextButtonPress()) {
+  switch (GetNextButtonPress(3, &Run_PID)) {
     case PushButtonOne: Heater_Test(); break;
     case PushButtonTwo: Display_Test(); break;
     case PushButtonThree: break;
@@ -9,7 +9,7 @@ void ALI_Tests() { // test push buttons, display, RTD, heater, current sensor, W
   
   screen->ShowMoreAliTestMenu();
   
-  switch (GetNextButtonPress()) {
+  switch (GetNextButtonPress(3, &Run_PID)) {
     case PushButtonOne: WDT_Test(); break;
     case PushButtonTwo: ALI_Tests(); break;
     case PushButtonThree: break;
@@ -18,7 +18,7 @@ void ALI_Tests() { // test push buttons, display, RTD, heater, current sensor, W
 
 void Display_Test() {
   screen->ShowScreenTestMenu();
-  switch (GetNextButtonPress()) {
+  switch (GetNextButtonPress(3, &Run_PID)) {
     case PushButtonOne:
       delay_WDT(6500);
       screen->Test();
@@ -30,7 +30,7 @@ void Display_Test() {
 
 void Heater_Test() {
   screen->ShowHeaterTestMenu();
-  switch (GetNextButtonPress()) {
+  switch (GetNextButtonPress(3, &Run_PID)) {
     case PushButtonOne: Htr_Test(); break;
     case PushButtonTwo: return;
     case PushButtonThree: return;
@@ -39,7 +39,7 @@ void Heater_Test() {
   
 void WDT_Test() {
   screen->ShowWatchdogTestMenu();
-  switch (GetNextButtonPress()) {
+  switch (GetNextButtonPress(3, &Run_PID)) {
     case PushButtonOne : while (true) { }
     case PushButtonTwo: return;
     case PushButtonThree: return;
@@ -74,7 +74,7 @@ void Htr_Test() {
     read_temp(); 
     screen->ShowHeaterTestDriveResults(drive, Temperature, Volts, Adj_Current, Power, Resistance);  
     
-    switch (GetNextButtonPress()) {
+    switch (GetNextButtonPress(3, &Run_PID)) {
       case PushButtonOne: if (drive <= 200) { drive += 50; } break;
       case PushButtonTwo: if (drive >= 50) { drive = drive - 50; } break;
       case PushButtonThree: return;

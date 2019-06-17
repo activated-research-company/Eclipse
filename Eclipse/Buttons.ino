@@ -39,13 +39,16 @@ bool AtLeastOneButtonIsDepressed() {
   return PowerButtonIsDepressed() || PushButtonOneIsDepressed() || PushButtonTwoIsDepressed() || PushButtonThreeIsDepressed();
 }
 
-int GetNextButtonPress() {
-  while (AtLeastOneButtonIsDepressed()) { Run_PID(); }
+int GetNextButtonPress(int validButtons, void (*loopRoutine)()) {
+  while (AtLeastOneButtonIsDepressed()) {
+    Run_PID();
+  }
+  delay_WDT(5); // filteres out additional responses right before going from depressed to not depressed
   while (true) {
-    if (PowerButtonIsDepressed()) { state = OFF; return PowerButton; }
-    if (PushButtonOneIsDepressed()) { return PushButtonOne; }
-    if (PushButtonTwoIsDepressed()) { return PushButtonTwo; }
-    if (PushButtonThreeIsDepressed()) { return PushButtonThree; }
-    Run_PID(); 
+    if (PowerButtonIsDepressed()) { TurnOff(); return PowerButton; }
+    if (validButtons >= 1 and PushButtonOneIsDepressed()) { return PushButtonOne; }
+    if (validButtons >= 2 and PushButtonTwoIsDepressed()) { return PushButtonTwo; }
+    if (validButtons >= 3 and PushButtonThreeIsDepressed()) { return PushButtonThree; }
+    (*loopRoutine)(); 
   }
 }

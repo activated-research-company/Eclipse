@@ -55,8 +55,6 @@ void SetpointController::ChangeSetpoint(double deltaValue, double stopOnValue, v
       
       *_setpoint += deltaValue * multiplier;
       _screen->UpdateSetpoint(previousSetpoint, *_setpoint);
-      
-      WriteSetpointToNVM();
 
       loops++;
       
@@ -72,6 +70,8 @@ void SetpointController::ChangeSetpoint(double deltaValue, double stopOnValue, v
       (*delayRoutine)(100);
     }
   }
+  
+  WriteSetpointToNVM();
   
 }
 
