@@ -20,7 +20,7 @@ void Display_Test() {
   screen->ShowScreenTestMenu();
   switch (GetNextButtonPress(3, &Run_PID)) {
     case PushButtonOne:
-      delay_WDT(6500);
+      watchdogTimer->Delay(6500);
       screen->Test();
       break;
     case PushButtonTwo: break;
@@ -62,7 +62,7 @@ void Htr_Test() {
   
     analogWrite(FET_Pin, drive);          // Turn on Heater so we get full current
     read_Current();
-    delay_WDT(3000);                    // hold power so we can read meter
+    watchdogTimer->Delay(3000);                    // hold power so we can read meter
     analogWrite(FET_Pin, 0);            // Turn off Heater
     read_Volts();
   

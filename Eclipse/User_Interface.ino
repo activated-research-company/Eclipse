@@ -16,12 +16,12 @@ void set_Setpoint() {
     switch (GetNextButtonPress(3, &Run_PID)) {
       case PushButtonOne:
         while (PushButtonOneIsDepressed()) {
-          setpointController->IncrementSetpoint(&delay_WDT, &PushButtonOneIsNotDepressed);
+          setpointController->IncrementSetpoint(watchdogTimer, &PushButtonOneIsNotDepressed);
         }
         break;
       case PushButtonTwo:
         while (PushButtonTwoIsDepressed()) {
-          setpointController->DecrementSetpoint(&delay_WDT, &PushButtonTwoIsNotDepressed);
+          setpointController->DecrementSetpoint(watchdogTimer, &PushButtonTwoIsNotDepressed);
         }
         break;
       case PushButtonThree: return;
@@ -96,21 +96,24 @@ void setPidValue(char* pidComponent, double *pidValue) {
   }
 }
 
-void UpdateTemperature() {
-    if ((Temperature != last_temperature)) { // update TFT only if data has changed to reduce flicker
+void UpdateTemperature(bool showStar) {
+    if ((Temperature != last_temperature)) { // update screen only if data has changed to reduce flicker
     
     screen->UpdateTemperature(last_temperature, Temperature);
     last_temperature = Temperature;
-    
-    if (Output > 0) {
-      screen->AddTemperatureStar();
-    } else {
-      screen->RemoveTemperatureStar();
+
+    if (showStar) {
+      if (Output > 0) {
+        screen->AddTemperatureStar();
+      } else {
+        screen->RemoveTemperatureStar();
+      }
     }
   }
 }
 
 void ReadAndUpdateTemperature() {
   read_temp();
-  UpdateTemperature();
+  UpdateTemperature(false);
+  watchdogTimer->Refresh();
 }

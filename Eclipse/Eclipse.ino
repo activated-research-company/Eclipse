@@ -2,9 +2,10 @@
 #include <EEPROM.h>
 #include "Screen.h"
 #include "SetpointController.h"
+#include "WatchdogTimer.h"
 
-#define DEBUG_MODE // uncomment to turn on debug mode
-#define SKIP_TEST_MODE //uncomment to turn off tests
+//#define DEBUG_MODE // uncomment to turn on debug mode
+//#define SKIP_TEST_MODE // uncomment to turn off tests
 
 Adafruit_MAX31865 max = Adafruit_MAX31865(8, 7, 6, 5); // defines pins used for SPI: CS, DI, DO, CLK
 
@@ -21,9 +22,7 @@ Adafruit_MAX31865 max = Adafruit_MAX31865(8, 7, 6, 5); // defines pins used for 
 //***** Hardware Pins Defined Here *****
 #define FET_Pin  13   // Heater drive PWM using power FET
 
-//Use these for the production units with a WDT. We remapped LEDB for use as the WDT strobe line
 #define LEDA 46     // PWM-able and used for the power button ... 
-#define WDT 45      // was LEDB on earlier versions remapped for WDT use
 
 /*** Variables used in PID Loop ***/
 unsigned long lastTime;   // used for integration time compute
@@ -105,8 +104,6 @@ static byte CA_count = 0;
 bool InFilt_State = 0;       // For Switching Filters in and out
 bool OutFilt_State = 0;
 
-bool WDT_State = 0;
-
 #define PowerButton 0
 #define PushButtonOne 1
 #define PushButtonTwo 2
@@ -122,10 +119,12 @@ bool goToNextState;
 
 Screen* screen;
 SetpointController* setpointController;
+WatchdogTimer* watchdogTimer;
 
 void setup() {
   screen = new Screen(10, 9);
   setpointController = new SetpointController(&Setpoint, 0.1, 0, 525, FET_Pin, screen);
+  watchdogTimer = new WatchdogTimer(45);
   Serial.begin(9600);
   max.begin(MAX31865_2WIRE); // RTD code and RTD Type
   SetControllerDirection(DIRECT);
@@ -134,7 +133,6 @@ void setup() {
   SetMode(AUTOMATIC);
   SetTunings(2, .5, 0); // initial tuning parameters - P, I, D
   pinMode(LEDA, OUTPUT);
-  pinMode(WDT, OUTPUT);
   pinMode(FET_Pin, OUTPUT);
   InFilt_State = 0;
   OutFilt_State = 0; // int filter states, NVM recall will override later
@@ -148,19 +146,6 @@ void TurnOff() {
   analogWrite(FET_Pin, 0);
   PID_Ticks=0;  
   state = OFF;
-}
-
-void strobe_WDT()
-{
-    WDT_State = !WDT_State;            // Toggle WDT output variable
-    digitalWrite(WDT , WDT_State);    //Write to strobe pin
-}
-
-void delay_WDT(int ms) { // use this instaed of delay function to prevent WDT time out
-   for (int ticks = 0; ticks < ms; ticks++) {
-      delay(1);
-      strobe_WDT();
-   }
 }
 
 void loop() {
@@ -185,7 +170,7 @@ void loop() {
 void WaitToBeTurnedOn() {
 
   // wait for power button to be a non-depressed state
-  while (PowerButtonIsDepressed()) { }
+  while (PowerButtonIsDepressed()) { watchdogTimer->Refresh(); }
 
   int ledOutput = 0;
   int ledOutputDirection;
@@ -199,9 +184,9 @@ void WaitToBeTurnedOn() {
     if (ledOutput == 0) ledOutputDirection = 1;
     ledOutput += ledOutputDirection;
     
-    delay_WDT(10);
+    watchdogTimer->Delay(10);
 
-    while (PowerButtonIsDepressed()) { readyToTurnOn = true; }
+    while (PowerButtonIsDepressed()) { readyToTurnOn = true; watchdogTimer->Refresh(); }
     if (readyToTurnOn) { break; }
   }
 
@@ -210,7 +195,10 @@ void WaitToBeTurnedOn() {
 
 void TurnOn() {
   digitalWrite(LEDA, LOW);
-  screen->ShowSplashScreen(&delay_WDT);
+  screen->ShowArcLogo();
+  watchdogTimer->Delay(2000);
+  screen->ShowSoftwareVersion();
+  watchdogTimer->Delay(2000);
   digitalWrite(LEDA, HIGH);
   goToNextState = true;
 }
@@ -228,7 +216,7 @@ void RunTests() {
     for (DT_index = 0; DT_index <= DT_SIZE; DT_index++)   // preload delta T (DT) array with current temperature
     {                                                   // this is used for calculating delta temperatures
       DT[DT_index] = Temperature;
-      strobe_WDT();
+      watchdogTimer->Refresh();
     }
   
     #ifdef SKIP_TEST_MODE
@@ -237,14 +225,14 @@ void RunTests() {
         return;
     #endif
 
-    screen->PrintTftDataToSerial();
+    #ifdef DEBUG_MODE
+      screen->PrintTftDataToSerial();
+    #endif
 
-    Serial.println("*** Test RTD ***");
     RTD_Fault = 0;
     HTR_Fault = 0;
     read_temp_verbose();   // This will set RTD_Fault if there is a problem
 
-    Serial.println("*** Heater Power Up Test ***");
     Heater_PU_Test(); // This will set HTR_Fault if there is a problem
     if ((RTD_Fault) || (HTR_Fault)) {
         screen->ShowPolyarcNotFound();
@@ -295,21 +283,22 @@ void Run() {
       PID_Ticks = 0;
     } else {
       held += 50;
-      delay_WDT(50);
+      watchdogTimer->Delay(50);
     }
   }
 
   while (PushButtonOneIsDepressed()) {
-    setpointController->IncrementSetpoint(&delay_WDT, &PushButtonOneIsNotDepressed);
+    setpointController->IncrementSetpoint(watchdogTimer, &PushButtonOneIsNotDepressed);
   }
   
   while (PushButtonTwoIsDepressed()) {
-    setpointController->DecrementSetpoint(&delay_WDT, &PushButtonTwoIsNotDepressed);
+    setpointController->DecrementSetpoint(watchdogTimer, &PushButtonTwoIsNotDepressed);
   }
   
   if (PushButtonThreeIsDepressed()) {
     analogWrite(FET_Pin,0);
     screen->Pause();
+    screen->RemoveTemperatureStar();
     GetNextButtonPress(3, &ReadAndUpdateTemperature);
     if (state == OFF) { return; }
     if (state != OFF) { screen->Resume(); }
@@ -320,10 +309,11 @@ void Run() {
       return;
   }
 
-  strobe_WDT();
+  watchdogTimer->Refresh();
  
   if (RTD_Fault != 0) { 
     Break_Code = 2;
+    state = TEST;
     return;
   }
 
@@ -331,34 +321,9 @@ void Run() {
   Int_Out = Output;
   analogWrite(FET_Pin, Int_Out);             // Write PID output to heater     
 
-  Test_Heater();                            // Check and see if heater current is in tolerance
-  if (HTR_Fault != 0) {
-    Break_Code = 3;
-    state = TEST;
-    return;
-  }
-
-  if (PID_Ticks == 1) { // check heater every other cycle
-    Current = analogRead(0); 
-    if (Current < 500) { // check for over current (value gets lower as current increases
-          Break_Code = 3;
-          HTR_Fault = 1;
-          state = TEST;
-          return;
-    }
-    if (Int_Out > 100) { // test for under current (only if we are driving heater at a reasonable level)
-      if (Current > 600) { // 650-635 is zero current, 600 approx PWM 75, at PWM 100 we should see approx 580     
-        Break_Code = 3;
-        HTR_Fault = 2;
-        state = TEST;
-        return;
-      } 
-    }         
-  }
-
   if (PID_Ticks == 2) {
-    analogWrite(FET_Pin,0);  // turn off PWM and heater
-    strobe_WDT();
+    analogWrite(FET_Pin, 0);  // turn off PWM and heater
+    watchdogTimer->Refresh();
     read_temp();     // read the temp
     
     if(RTD_Fault == 4) { // Look for RTD noise fault
@@ -376,7 +341,7 @@ void Run() {
       #endif
     }
            
-    UpdateTemperature();
+    UpdateTemperature(true);
   
     PID_Ticks = 0;
     analogWrite(FET_Pin, Int_Out);

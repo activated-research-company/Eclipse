@@ -8,7 +8,8 @@ class Screen {
 
     Screen(int8_t csPin, int8_t dcPin);
     void TurnOff();
-    void ShowSplashScreen(void (*delayRoutine)(int));
+    void ShowArcLogo();
+    void ShowSoftwareVersion();
     void Test();
     void ShowPidMenu();
     void ShowTriangleOne();

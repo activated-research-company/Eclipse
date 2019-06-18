@@ -440,12 +440,14 @@ void Screen::Resume() {
   DrawDownArrow(ILI9341_BLACK);
 }
 
-void Screen::ShowSplashScreen(void (*delayRoutine)(int)) {
+void Screen::ShowArcLogo() {
   _tft.setTextSize(2);
   _tft.setRotation(1);
   _tft.fillScreen(ILI9341_WHITE);
   _tft.drawBitmap(50, 0, arcLogo, 256, 256, 0x001F);
-  (*delayRoutine)(2000);
+}
+
+void Screen::ShowSoftwareVersion() {
   _tft.fillScreen(ILI9341_WHITE);
   Print(30, 40, "   ARC Eclipse");
   _tft.println("");
@@ -454,7 +456,6 @@ void Screen::ShowSplashScreen(void (*delayRoutine)(int)) {
   _tft.println(Ver);
   _tft.print("    ");
   _tft.println(Ver_Date);
-  (*delayRoutine)(2000);
 }
 
 // test helpers ///////////////////////////////////////////////////////////////////////////////////////////////

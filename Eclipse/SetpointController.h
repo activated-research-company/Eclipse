@@ -1,13 +1,14 @@
 #ifndef SetpointController_h
 #define SetpointController_h
 
-#include "screen.h"
+#include "Screen.h"
+#include "WatchdogTimer.h"
   
 class SetpointController {
   public:
     SetpointController(double* setpoint, double deltaValue, double minValue, double maxValue, int outputPin, Screen* screen);
-    void IncrementSetpoint(void (*delayRoutine)(int), bool (*breakWhenTrue)());
-    void DecrementSetpoint(void (*delayRoutine)(int), bool (*breakWhenTrue)());
+    void IncrementSetpoint(WatchdogTimer* watchdogTimer, bool (*breakWhenTrue)());
+    void DecrementSetpoint(WatchdogTimer* watchdogTimer, bool (*breakWhenTrue)());
   private:
     double* _setpoint;
     double _deltaValue;
@@ -15,7 +16,7 @@ class SetpointController {
     double _maxValue;
     int _outputPin;
     Screen* _screen;
-    void ChangeSetpoint(double deltaValue, double stopOnValue, void (*delayRoutine)(int), bool (*breakWhenTrue)());
+    void ChangeSetpoint(double deltaValue, double stopOnValue, WatchdogTimer* watchdogTimer, bool (*breakWhenTrue)());
     void WriteSetpointToNVM();
 };
 

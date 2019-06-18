@@ -43,7 +43,7 @@ int GetNextButtonPress(int validButtons, void (*loopRoutine)()) {
   while (AtLeastOneButtonIsDepressed()) {
     Run_PID();
   }
-  delay_WDT(5); // filteres out additional responses right before going from depressed to not depressed
+  watchdogTimer->Delay(5); // filteres out additional responses right before going from depressed to not depressed
   while (true) {
     if (PowerButtonIsDepressed()) { TurnOff(); return PowerButton; }
     if (validButtons >= 1 and PushButtonOneIsDepressed()) { return PushButtonOne; }

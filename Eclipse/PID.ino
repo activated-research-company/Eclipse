@@ -4,11 +4,11 @@ void Run_PID() { // takes about 60 mS to run
 
   now = millis();
   
-  strobe_WDT(); 
+  watchdogTimer->Refresh(); 
   timeChange = (now - lastTime);
   if (timeChange >= SampleTime)           // return if not enough time has elapsed (Sample time is a define up front)
   {
-    strobe_WDT(); 
+    watchdogTimer->Refresh(); 
     PID_Ticks++;                          // increments on 500mS tick
     print_datalog_data();                 // select either of these two for output. 
     
@@ -48,7 +48,6 @@ void Run_PID() { // takes about 60 mS to run
     }
     
     Output = PTerm + ITerm - DTerm;               //Compute PID Output by summing P,I,D terms
-    double T = Output;                            // save unclipped Output
     if (Output > Max_Htr) Output = Max_Htr;       // Clip output to be within min and max
     else if (Output < outMin) Output = outMin;
 
@@ -68,7 +67,7 @@ void Run_PID() { // takes about 60 mS to run
     lastTime = now; 
   }
   
-  strobe_WDT();
+  watchdogTimer->Refresh();
 }
 
 long Smooth_Temp(int M) {

@@ -60,7 +60,7 @@ int Recall_NVM() {
   else { // variables found
     int a = EEPROM.read(NVM_Setpt);
     int b = EEPROM.read(NVM_Setpt + 1);
-    Setpoint = a * 256 + b;
+    Setpoint = (a * 256 + b) / 10.0;
     kp = EEPROM.read(NVM_Kp);
     ki = EEPROM.read(NVM_Ki);
     kd = EEPROM.read(NVM_Kd);

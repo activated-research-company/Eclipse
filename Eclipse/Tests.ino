@@ -4,7 +4,7 @@ void read_Volts()
     for (int i = 0; i <= 255; i++) {    // Get the value of power supply voltage
       Volts = Volts + analogRead(1);
       delay(1);
-      strobe_WDT();
+      watchdogTimer->Refresh();
     }
     Volts = Volts / 256;   // Average
     Volts = Volts / 20;    // Scale to Volts and use global variable
@@ -15,7 +15,7 @@ void read_Current()
   Current = 0;                        // Clear Average
   for (int i = 0; i < 100; i++) {    // Get the value of full current
     Current += analogRead(0);
-    delay_WDT(1);
+    watchdogTimer->Delay(1);
   }
   Current = Current / 100;            // Calculate Average value  
   if (Current < 0) { Current = 0; }
@@ -27,7 +27,7 @@ void calc_MidPt()  // Calculate the middle or zero point of the current sensor .
   for (int i = 0; i <= 255; i++) {    // Get the value of zero current
     Midpt = Midpt + analogRead(0);
     delay(1);
-    strobe_WDT();
+    watchdogTimer->Refresh();
   }
   Midpt = Midpt / 256;  // Average and set global variable
 }
@@ -57,7 +57,7 @@ int Analog_Tests()
 
   Serial.println("Analog Tests  - Heater Off");
   analogWrite(FET_Pin, 0);
-  delay_WDT(1000);
+  watchdogTimer->Delay(1000);
 
   read_Volts();  
   Serial.print("Volts = ");
@@ -116,31 +116,11 @@ int Analog_Tests()
 
 // A fast test to look for a gross over current in the heater
 // This is a 'noisy' measurement and we only check for gross over current and lack of current
-int Test_Heater_Fast()   
-{
-  int Fast_Current = analogRead(0);
-  return Fast_Current;
-}
-
-void Test_Heater()
-{
-  // Verify heater is not pulling too much current
-  // This is a 'noisy' measurement and we only check for gross over current and lack of current
-  // Test for shorted heater ... If Adj_Current > 1500
-  // Test for Open ... IF OP > 40 AND Adj_Current < 100
-
-  int OP;
-  read_Current();                 // faster version so we don't take too much time
-  Adj_Current = (Midpt - Current) * 10; // Scale to mA
-  OP = Output;                        // convert Double to Int
-  HTR_Fault = 0;
-  if (Adj_Current > 1500)             // test for over current
-    HTR_Fault = 1;
-  if ((OP > 40) && (Adj_Current < 100))  // test for under current
-  {
-  //  HTR_Fault = 2;   // disabled in version 17
+#ifdef DEBUG_MODE
+  int Test_Heater_Fast() {
+    return analogRead(0);
   }
-}
+#endif
 
 void Heater_PU_Test()
 {
@@ -148,7 +128,7 @@ void Heater_PU_Test()
 
   Serial.println("Heater Power Up Test");
   analogWrite(FET_Pin, 0); // Turn off Heater so we get no current
-  delay_WDT(100);
+  watchdogTimer->Delay(100);
   read_temp();
   Serial.print("Start Temperature = ");
   Serial.println(Temperature);

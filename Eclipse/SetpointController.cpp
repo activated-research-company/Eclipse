@@ -1,4 +1,5 @@
 #include "SetpointController.h"
+#include "WatchdogTimer.h"
 #include <EEPROM.h>
 
 #define NVM_Setpt 2
@@ -12,15 +13,15 @@ SetpointController::SetpointController(double* setpoint, double deltaValue, doub
   _screen = screen;
 }
 
-void SetpointController::IncrementSetpoint(void (*delayRoutine)(int), bool (*breakWhenTrue)()) {
-  ChangeSetpoint(_deltaValue, _maxValue, (*delayRoutine), (*breakWhenTrue));
+void SetpointController::IncrementSetpoint(WatchdogTimer* watchdogTimer, bool (*breakWhenTrue)()) {
+  ChangeSetpoint(_deltaValue, _maxValue, watchdogTimer, (*breakWhenTrue));
 }
 
-void SetpointController::DecrementSetpoint(void (*delayRoutine)(int), bool (*breakWhenTrue)()) {
-  ChangeSetpoint(-_deltaValue, _minValue, (*delayRoutine), (*breakWhenTrue));
+void SetpointController::DecrementSetpoint(WatchdogTimer* watchdogTimer, bool (*breakWhenTrue)()) {
+  ChangeSetpoint(-_deltaValue, _minValue, watchdogTimer, (*breakWhenTrue));
 }
 
-void SetpointController::ChangeSetpoint(double deltaValue, double stopOnValue, void (*delayRoutine)(int), bool (*breakWhenTrue)()) {
+void SetpointController::ChangeSetpoint(double deltaValue, double stopOnValue, WatchdogTimer* watchdogTimer, bool (*breakWhenTrue)()) {
 
   analogWrite(_outputPin, 0);
   
@@ -67,7 +68,7 @@ void SetpointController::ChangeSetpoint(double deltaValue, double stopOnValue, v
         multiplier = 100;  
       }
       
-      (*delayRoutine)(100);
+      watchdogTimer->Delay(100);
     }
   }
   
@@ -76,7 +77,7 @@ void SetpointController::ChangeSetpoint(double deltaValue, double stopOnValue, v
 }
 
 void SetpointController::WriteSetpointToNVM() {
-  int temp = *_setpoint;
+  int temp = *_setpoint * 10;
   int a = highByte(temp);
   int b = lowByte(temp);
   EEPROM.write(NVM_Setpt, a);

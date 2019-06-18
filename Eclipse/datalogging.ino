@@ -48,7 +48,7 @@ void print_datalog_data()
     Serial.print(",");
     Serial.print(Unfiltered_Temp, 2);
     Serial.print(",");
-    Serial.print(Output, 1);
+    Serial.print(Int_Out, 1);
     Serial.print(",");
     Serial.print(Delta_T);
     Serial.print(",");
