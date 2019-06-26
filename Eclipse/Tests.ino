@@ -53,7 +53,6 @@ void calc_Adj_Current()
 int Analog_Tests()
 {
   analogReference(INTERNAL2V56);      // Use 2.56 volts as reference
-  analogWrite(FET_Pin, 0);            // Turn off Heater so we get no current
 
   Serial.println("Analog Tests  - Heater Off");
   analogWrite(FET_Pin, 0);
@@ -129,7 +128,7 @@ void Heater_PU_Test()
   Serial.println("Heater Power Up Test");
   analogWrite(FET_Pin, 0); // Turn off Heater so we get no current
   watchdogTimer->Delay(100);
-  read_temp();
+  read_temp(false);
   Serial.print("Start Temperature = ");
   Serial.println(Temperature);
 
@@ -162,7 +161,7 @@ void Heater_PU_Test()
   Serial.print("Mid Point = ");
   Serial.println(Midpt);
 
-  read_temp();
+  read_temp(false);
   Serial.print("End Temperature = ");
   Serial.println(Temperature);
   HTR_Fault = 0;

@@ -1,11 +1,20 @@
-// ************ Reads the MAX RTC Chip and laods variable Temperature **************
+// ************ Reads the MAX RTC Chip and loads variable Temperature **************
 
-void read_temp() {
-  uint16_t rtd = max.readRTD();
-  float ratio = rtd;
-  ratio /= 32768;    // same as ratio = ratio / 32768;
-  Temperature = max.temperature(100, RREF);
-  // Check and print any faults
+void read_temp(bool filter) {
+
+  max.readRTD();
+
+  if (filter) {
+    if (TemperatureFilter.Current() < 1) {
+      TemperatureFilter.SetCurrent(max.temperature(100, RREF));
+    } else {
+      TemperatureFilter.Filter(max.temperature(100, RREF));
+    }
+    Temperature = TemperatureFilter.Current();
+  } else {
+    Temperature =  max.temperature(100, RREF);
+  }
+  
   uint8_t fault = max.readFault();
   RTD_Fault = fault;
 

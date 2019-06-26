@@ -71,7 +71,7 @@ void Htr_Test() {
     calc_Power();         // Sets Power variable
     calc_Resistance();    // Sets Resistance variable
 
-    read_temp(); 
+    read_temp(false); 
     screen->ShowHeaterTestDriveResults(drive, Temperature, Volts, Adj_Current, Power, Resistance);  
     
     switch (GetNextButtonPress(3, &Run_PID)) {

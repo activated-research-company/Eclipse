@@ -1,7 +1,7 @@
 void get_info() {
 
   Analog_Tests();
-  screen->ShowDiagnostics(Adj_Current, Volts, Power, Resistance, kp, ki, kd);
+  screen->ShowDiagnostics(Adj_Current, Volts, Power, Resistance);
 
   while (true) {
     if (PushButtonTwoIsDepressed()) {
@@ -31,71 +31,6 @@ void set_Setpoint() {
   while (AtLeastOneButtonIsDepressed()) { }
 }
 
-void Edit_Parameters(){
-
-  screen->ShowPidMenu();
-  
-  int iconCtrl = 0;
-
-  while (true) {
-    switch (GetNextButtonPress(3, &Run_PID)) {
-      case PushButtonOne:
-        iconCtrl = (iconCtrl +  1) % 4;
-        switch(iconCtrl) {
-          case 0:
-            screen->ShowTriangleOne();
-            break;
-          case 1:
-            screen->ShowTriangleTwo();
-            break;
-          case 2:
-            screen->ShowTriangleThree();
-            break;
-          case 3:
-            screen->ShowTriangleFour();
-            break;
-        }
-        break;
-      case PushButtonTwo:
-        switch(iconCtrl){
-          case 0:
-            setPidValue("Kp", &kp);
-            screen->ShowPidMenu();
-            break;
-          case 1:
-            setPidValue("Ki", &ki);
-            screen->ShowPidMenu();
-            break;
-          case 2:
-            setPidValue("Kd", &kd);
-            screen->ShowPidMenu();
-            break;
-          case 3:
-            get_info();
-            screen->ShowPidMenu();
-            break;
-        }
-        break;
-      case PushButtonThree: return;
-     }
-  }
-}
-
-void setPidValue(char* pidComponent, double *pidValue) {
-  screen->ShowPidComponentMenu(pidComponent, *pidValue);
-  double oldValue;
-  while (true) {
-    oldValue = *pidValue; 
-    switch (GetNextButtonPress(3, &Run_PID)) {
-      case PushButtonOne: *pidValue += 1; break;
-      case PushButtonTwo: if (*pidValue > 0) { *pidValue -= 1; } break;
-      case PushButtonThree: { return; }
-    }
-    screen->UpdatePidComponentValue(pidComponent, oldValue, *pidValue);
-    Write_NVM();
-  }
-}
-
 void UpdateTemperature(bool showStar) {
     if ((Temperature != last_temperature)) { // update screen only if data has changed to reduce flicker
     
@@ -113,7 +48,7 @@ void UpdateTemperature(bool showStar) {
 }
 
 void ReadAndUpdateTemperature() {
-  read_temp();
+  read_temp(true);
   UpdateTemperature(false);
   watchdogTimer->Refresh();
 }

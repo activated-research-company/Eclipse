@@ -101,88 +101,6 @@ void Screen::TurnOff() {
   _tft.fillScreen(ILI9341_BLACK);
 }
 
-void Screen::ShowPidMenu() {
-    _tft.setTextSize(2);
-    _tft.fillScreen(ILI9341_WHITE);
-    ShowTriangleOne();
-    Print(30, 40, "Change Kp");
-    Print(30, 75, "Change Ki");
-    Print(30, 110, "Change Kd");
-    Print(30, 145, "Diagnostics");
-    Print(25, 220,"Down");
-    Print(140, 220,"Ok");
-    Print(215, 220, "Back");
-}
-
-void Screen::ShowTriangleOne() {
-  SetTriangleOneColor(ILI9341_BLACK);
-  SetTriangleTwoColor(ILI9341_WHITE);
-  SetTriangleThreeColor(ILI9341_WHITE);
-  SetTriangleFourColor(ILI9341_WHITE);
-}
-
-void Screen::ShowTriangleTwo() {
-  SetTriangleOneColor(ILI9341_WHITE);
-  SetTriangleTwoColor(ILI9341_BLACK);
-  SetTriangleThreeColor(ILI9341_WHITE);
-  SetTriangleFourColor(ILI9341_WHITE);
-}
- 
-void Screen::ShowTriangleThree() {
-  SetTriangleOneColor(ILI9341_WHITE);
-  SetTriangleTwoColor(ILI9341_WHITE);
-  SetTriangleThreeColor(ILI9341_BLACK);
-  SetTriangleFourColor(ILI9341_WHITE);
-}
-
-void Screen::ShowTriangleFour() {
-  SetTriangleOneColor(ILI9341_WHITE);
-  SetTriangleTwoColor(ILI9341_WHITE);
-  SetTriangleThreeColor(ILI9341_WHITE);
-  SetTriangleFourColor(ILI9341_BLACK);
-}
-
-void Screen::SetTriangleOneColor(int color) {
-  _tft.fillTriangle(10, 20, 25, 30, 10, 40, color);
-}
-
-void Screen::SetTriangleTwoColor(int color) {
-  _tft.fillTriangle(10, 55, 25, 65, 10, 75, color);
-}
-
-void Screen::SetTriangleThreeColor(int color) {
-  _tft.fillTriangle(10, 90, 25, 100, 10, 110, color);
-}
-
-void Screen::SetTriangleFourColor(int color) {
-  _tft.fillTriangle(10, 125, 25, 134, 10, 145, color);
-}
-
-void Screen::ShowPidComponentMenu(const char* pidOption, double pidValue) {
-  _tft.fillScreen(ILI9341_WHITE);
-  _tft.setTextColor(ILI9341_BLACK);
-  _tft.setTextSize(2);
-  Print(20, 30, "Set ");
-  _tft.print(pidOption);
-  UpdatePidComponentValue(pidOption, pidValue, pidValue);
-  DrawUpArrow(ILI9341_BLACK);
-  DrawDownArrow(ILI9341_BLACK);
-  Print(240, 220, "Ok");
-}
-
-void Screen::UpdatePidComponentValue(const char* pidOption, double oldValue, double newValue) {
-  _tft.setTextColor(ILI9341_WHITE);
-  _tft.setCursor(20, 70);
-  _tft.print(pidOption);
-  _tft.print(" = ");
-  _tft.print(oldValue, 0);
-  _tft.setTextColor(ILI9341_BLACK);
-  _tft.setCursor(20, 70);
-  _tft.print(pidOption);
-  _tft.print(" = ");
-  _tft.print(newValue, 0);
-}
-
 void Screen::ShowSetpointMenu(double setpoint) {
   _tft.fillScreen(ILI9341_WHITE);
   _tft.setTextColor(ILI9341_BLACK );
@@ -195,7 +113,7 @@ void Screen::ShowSetpointMenu(double setpoint) {
   Print(180, 50, setpoint, 1);
 }
 
-void Screen::ShowDiagnostics(double current, double volts, double power, double resistance, double kp, double ki, double kd) {
+void Screen::ShowDiagnostics(double current, double volts, double power, double resistance) {
   _tft.setTextSize(1);
   _tft.fillScreen(ILI9341_WHITE);
   
@@ -218,15 +136,6 @@ void Screen::ShowDiagnostics(double current, double volts, double power, double 
   _tft.setCursor(150,120);
   _tft.print(resistance);
   _tft.println(" Ohms");
-
-  Print(20, 150, "PID = ");
-  _tft.setCursor(150,150);
-  _tft.print(kp, 0);
-  _tft.print(" - ");
-  _tft.print(ki, 0);
-  _tft.print(" - ");
-  _tft.print(kd, 0);
-  _tft.print(" ");
 
   _tft.setTextSize(2);
 
