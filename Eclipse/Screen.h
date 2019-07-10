@@ -11,13 +11,6 @@ class Screen {
     void ShowArcLogo();
     void ShowSoftwareVersion();
     void Test();
-    void ShowPidMenu();
-    void ShowTriangleOne();
-    void ShowTriangleTwo();
-    void ShowTriangleThree();
-    void ShowTriangleFour();
-    void ShowPidComponentMenu(const char* pidOption, double pidValue);
-    void UpdatePidComponentValue(const char* pidOption, double oldValue, double newValue);
     void ShowSetpointMenu(double setpoint);
     void ShowDiagnostics(double current, double volts, double power, double resistance, double kp, double ki, double kd);
     void ShowMain(double setpoint, double temperature);
@@ -34,9 +27,9 @@ class Screen {
     void ShowTestingHeader();
     void ShowUseLastSetpointQuestion(double setpoint);
     void UpdateSetpoint(double oldSetpoint, double newSetpoint);
+    void UpdatePidOutput(double oldOutput, double newOutput);
     void UpdateTemperature(double oldTemperature, double newTemperature);
-    void AddTemperatureStar();
-    void RemoveTemperatureStar();
+    void UpdateRawTemperature(double oldTemperature, double newTemperature);
     void Pause();
     void Resume();
     
@@ -45,6 +38,7 @@ class Screen {
     int setpointLocationXY[2];
     void UpdateSetpointLocation(int x, int y);
     void Print(int x, int y, char* value, int color = ILI9341_BLACK);
+    void Print(int x, int y, String value, int color = ILI9341_BLACK);
     void Print(int x, int y, int value, int color = ILI9341_BLACK);
     void Print(int x, int y, double value, int decimalPlaces, int color = ILI9341_BLACK);
     void SetTriangleOneColor(int color);
