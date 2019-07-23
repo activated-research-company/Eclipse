@@ -27,9 +27,8 @@ class Screen {
     void ShowTestingHeader();
     void ShowUseLastSetpointQuestion(double setpoint);
     void UpdateSetpoint(double oldSetpoint, double newSetpoint);
-    void UpdatePidOutput(double oldOutput, double newOutput);
+    void UpdateOutput(double newOutput);
     void UpdateTemperature(double oldTemperature, double newTemperature);
-    void UpdateRawTemperature(double oldTemperature, double newTemperature);
     void Pause();
     void Resume();
     
@@ -37,7 +36,7 @@ class Screen {
     Adafruit_ILI9341 _tft;
     int setpointLocationXY[2];
     void UpdateSetpointLocation(int x, int y);
-    void Print(int x, int y, char* value, int color = ILI9341_BLACK);
+    void Print(int x, int y, const char* value, int color = ILI9341_BLACK);
     void Print(int x, int y, String value, int color = ILI9341_BLACK);
     void Print(int x, int y, int value, int color = ILI9341_BLACK);
     void Print(int x, int y, double value, int decimalPlaces, int color = ILI9341_BLACK);
@@ -47,7 +46,10 @@ class Screen {
     void SetTriangleFourColor(int color);
     void DrawUpArrow(int color);
     void DrawDownArrow(int color);
-    void DrawNumberedMenu(char* header, char* buttonOne, char* buttonTwo, char* buttonThree);
+    void DrawNumberedMenu(const char* header, const char* buttonOne, const char* buttonTwo, const char* buttonThree);
+    void UpdateStandardDouble(int minimumX, int y, double oldDouble, double newDouble, int decimalPlaces);
+    void PrintStandardDouble(int minimumx, int y, double number, int color, int decimalPlaces);
+    void FillOutputBars(bool barOne, bool barTwo, bool barThree, bool barFour, bool barFive);
     unsigned long testFilledRoundRects();
     unsigned long testRoundRects();
     unsigned long testFilledTriangles();

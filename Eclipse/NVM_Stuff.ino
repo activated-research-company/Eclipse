@@ -28,6 +28,8 @@ int Recall_NVM() {
     int b = EEPROM.read(NVM_Setpt + 1);
     Setpoint = (a * 256 + b) / 10.0;
   }
+
+  Setpoint = round(Setpoint);
   
   NVM_Print();
 }

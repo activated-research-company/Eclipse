@@ -6,7 +6,7 @@
 #include <PID_v1.h>
 
 //#define DEBUG_MODE // uncomment to turn on debug mode
-//#define SKIP_TEST_MODE // uncomment to turn off tests
+#define SKIP_TEST_MODE // uncomment to turn off tests
 
 Adafruit_MAX31865 max = Adafruit_MAX31865(8, 7, 6, 5); // defines pins used for SPI: CS, DI, DO, CLK
 
@@ -22,29 +22,29 @@ Adafruit_MAX31865 max = Adafruit_MAX31865(8, 7, 6, 5); // defines pins used for 
 
 unsigned long now;
 
-double LastOutput = 0;
 double Output = 0;
 double Setpoint;
 
-double kp = 10.004; // 10.004 reduced overshoot by 5 // 5.004 from autotune
-double ki = 0.228; // 0.328 reduced overshoot, higher wobble // 0.164 from autotune
-double kd = 38.158; // 38.158 from autotune
+double kp = 5.004;
+double ki = 0.164;
+double kd = 38.158;
 
-double RawTemperature; //temperature reading with filter
-double LastRawTemperature;
-double Temperature; //temperature reading with filter
+int pidInterval = 350; // ms
+unsigned long lastPidMillis = 0;
+
+double Temperature;
 double LastTemperature;
 
-int RTD_Fault;                  // Gets set by RTD read function
-int HTR_Fault;                  // Gets set by Test_Heater function
+int RTD_Fault; // Gets set by RTD read function
+int HTR_Fault; // Gets set by Test_Heater function
 
-int Int_Out;   // used for casting float Outputs as integer
+int Int_Out; // used for casting float Outputs as integer
 int Fault_Count = 0;
 
-int Power_Avg;     // rolling average of power (drive) to FET
-int Delta_T;       // Temp change over a 30 second interval
+int Power_Avg; // rolling average of power (drive) to FET
+int Delta_T; // Temp change over a 30 second interval
 
-int fault;        // This group used for analog tests
+int fault; // This group used for analog tests
 float Volts;
 float Current;
 float Adj_Current;
@@ -77,9 +77,8 @@ void setup() {
   #endif
   
   screen = new Screen(10, 9);
-  setpointController = new SetpointController(&Setpoint, 0.1, 0, 525, FET_Pin, screen);
+  setpointController = new SetpointController(&Setpoint, 1, 0, 650, FET_Pin, screen);
   watchdogTimer = new WatchdogTimer(45);
-  pid.SetSampleTime(200);
   pid.SetMode(AUTOMATIC);
   max.begin(MAX31865_2WIRE); // RTD code and RTD Type
   pinMode(LEDA, OUTPUT);
@@ -172,12 +171,12 @@ void RunTests() {
 
     RTD_Fault = 0;
     HTR_Fault = 0;
-    GetRawTemperature();   // This will set RTD_Fault if there is a problem
+    read_temp();   // This will set RTD_Fault if there is a problem
 
     Heater_PU_Test(); // This will set HTR_Fault if there is a problem
     if ((RTD_Fault) || (HTR_Fault)) {
         screen->ShowPolyarcNotFound();
-        GetNextButtonPress(3, &Run_PID);
+        GetNextButtonPress(3, NULL);
         return;
     }
     
@@ -191,7 +190,7 @@ void Edit() {
   Recall_NVM();
   screen->ShowUseLastSetpointQuestion(Setpoint);
   fault = 0;
-  if (GetNextButtonPress(2, &Run_PID) == PushButtonTwo) { set_Setpoint(); }
+  if (GetNextButtonPress(2, NULL) == PushButtonTwo) { set_Setpoint(); }
   if (fault != 0) { state = TEST; return;}
   if (state == OFF) { return; }
 
@@ -236,9 +235,9 @@ void Run() {
   if (PushButtonThreeIsDepressed()) {
     analogWrite(FET_Pin, 0);
     screen->Pause();
-    screen->UpdatePidOutput(Output / 2.55, 0);
+    screen->UpdateOutput(0);
     GetNextButtonPress(3, &ReadAndUpdateTemperature);
-    screen->UpdatePidOutput(0, Output / 2.55);
+    screen->UpdateOutput(Output / 2.55);
     if (state == OFF) { return; }
     if (state != OFF) { screen->Resume(); }
   }
@@ -255,20 +254,28 @@ void Run() {
     return;
   }
 
-  LastOutput = Output;
+  unsigned long currentMillis = millis();
 
-  if (Run_PID()) {
+  if (currentMillis - lastPidMillis >= pidInterval) {
 
-    screen->UpdatePidOutput(LastOutput / 2.55, Output / 2.55);
+    lastPidMillis = currentMillis;
     
-    Int_Out = Output;
+    analogWrite(FET_Pin, 0);
+    read_temp();
+    watchdogTimer->Refresh();
 
+    pid.Compute();
+
+    Int_Out = Output;
+    analogWrite(FET_Pin, Int_Out);
+
+    watchdogTimer->Refresh();
+    screen->UpdateOutput(Output / 2.55);
+    watchdogTimer->Refresh();
+      
     #ifdef DEBUG_MODE
       Serial.println(Int_Out);
     #endif
-
-    watchdogTimer->Refresh();
-    read_temp();     // read the temp
     
     if(RTD_Fault == 4) { // Look for RTD noise fault
       RTD_Fault = 0;  // reset fault  
@@ -284,10 +291,7 @@ void Run() {
         Serial.println(); 
       #endif
     }
-           
-    UpdateTemperature();
-    
-    analogWrite(FET_Pin, Int_Out);
-    
-   }
+
+    UpdateTemperature(); 
+  }
 }

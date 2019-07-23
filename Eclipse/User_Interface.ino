@@ -1,13 +1,13 @@
 void ShowDiagnostics() {
   Analog_Tests();
   screen->ShowDiagnostics(Adj_Current, Volts, Power, Resistance, kp, ki, kd);
-  GetNextButtonPress(1, &Run_PID);
+  GetNextButtonPress(1, NULL);
 }
 
 void set_Setpoint() {
   screen->ShowSetpointMenu(Setpoint);
   while (true) {
-    switch (GetNextButtonPress(3, &Run_PID)) {
+    switch (GetNextButtonPress(3, NULL)) {
       case PushButtonOne:
         while (PushButtonOneIsDepressed()) {
           setpointController->IncrementSetpoint(watchdogTimer, &PushButtonOneIsNotDepressed);
@@ -26,20 +26,9 @@ void set_Setpoint() {
 }
 
 void UpdateTemperature() {
-
-    #ifdef DEBUG_MODE
-      if (LastRawTemperature != RawTemperature) {
-        screen->UpdateRawTemperature(LastRawTemperature, RawTemperature);
-        LastRawTemperature = RawTemperature;
-      }
-    #endif
-  
     if (Temperature != LastTemperature) { // update screen only if data has changed to reduce flicker
-    
-    screen->UpdateTemperature(LastTemperature, Temperature);
-
-    LastTemperature = Temperature;
-
+      screen->UpdateTemperature(LastTemperature, Temperature);
+      LastTemperature = Temperature;
   }
 }
 
