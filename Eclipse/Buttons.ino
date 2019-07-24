@@ -41,7 +41,7 @@ bool AtLeastOneButtonIsDepressed() {
 
 int GetNextButtonPress(int validButtons, void (*loopRoutine)()) {
   while (AtLeastOneButtonIsDepressed()) {
-    Run_PID();
+    watchdogTimer->Delay(1);
   }
   watchdogTimer->Delay(5); // filteres out additional responses right before going from depressed to not depressed
   while (true) {
@@ -49,6 +49,7 @@ int GetNextButtonPress(int validButtons, void (*loopRoutine)()) {
     if (validButtons >= 1 and PushButtonOneIsDepressed()) { return PushButtonOne; }
     if (validButtons >= 2 and PushButtonTwoIsDepressed()) { return PushButtonTwo; }
     if (validButtons >= 3 and PushButtonThreeIsDepressed()) { return PushButtonThree; }
-    (*loopRoutine)(); 
+    if (loopRoutine) { (*loopRoutine)(); }
+    watchdogTimer->Delay(1);
   }
 }
