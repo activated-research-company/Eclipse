@@ -6,8 +6,6 @@ void print_datalog_header()
     Serial.print("RTD"); 
     Serial.print(",");
     Serial.print("PWM");
-    Serial.print(",");
-    Serial.print("DT");  
     Serial.print(","); 
     Serial.print("PA"); 
     Serial.print(",");  
@@ -39,8 +37,6 @@ void print_datalog_data()
     Serial.print(now);
     Serial.print(",");
     Serial.print(Int_Out, 1);
-    Serial.print(",");
-    Serial.print(Delta_T);
     Serial.print(",");
     Serial.print(Power_Avg);
     Serial.print(",");

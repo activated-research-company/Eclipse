@@ -6,7 +6,7 @@
 #include <PID_v1.h>
 
 //#define DEBUG_MODE // uncomment to turn on debug mode
-#define SKIP_TEST_MODE // uncomment to turn off tests
+//#define SKIP_TEST_MODE // uncomment to turn off tests
 
 Adafruit_MAX31865 max = Adafruit_MAX31865(8, 7, 6, 5); // defines pins used for SPI: CS, DI, DO, CLK
 
@@ -25,11 +25,11 @@ unsigned long now;
 double Output = 0;
 double Setpoint;
 
-double kp = 5.004;
-double ki = 0.164;
+double kp = 10.004;
+double ki = 0.228;
 double kd = 38.158;
 
-int pidInterval = 350; // ms
+int pidInterval = 500; // ms
 unsigned long lastPidMillis = 0;
 
 double Temperature;
@@ -42,7 +42,6 @@ int Int_Out; // used for casting float Outputs as integer
 int Fault_Count = 0;
 
 int Power_Avg; // rolling average of power (drive) to FET
-int Delta_T; // Temp change over a 30 second interval
 
 int fault; // This group used for analog tests
 float Volts;
@@ -80,6 +79,7 @@ void setup() {
   setpointController = new SetpointController(&Setpoint, 1, 0, 650, FET_Pin, screen);
   watchdogTimer = new WatchdogTimer(45);
   pid.SetMode(AUTOMATIC);
+  pid.SetSampleTime(pidInterval);
   max.begin(MAX31865_2WIRE); // RTD code and RTD Type
   pinMode(LEDA, OUTPUT);
   pinMode(FET_Pin, OUTPUT);
