@@ -6,7 +6,7 @@
 #include <PID_v1.h>
 
 //#define DEBUG_MODE // uncomment to turn on debug mode
-#define SKIP_TEST_MODE // uncomment to turn off tests
+//#define SKIP_TEST_MODE // uncomment to turn off tests
 
 Adafruit_MAX31865 max = Adafruit_MAX31865(8, 7, 6, 5); // defines pins used for SPI: CS, DI, DO, CLK
 
