@@ -2,5 +2,5 @@
     "board": "arduino:avr:mega",
     "configuration": "cpu=atmega2560",
     "sketch": "Eclipse\\Eclipse.ino",
-    "port": "COM7"
+    "port": "COM5"
 }

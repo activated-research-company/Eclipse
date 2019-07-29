@@ -354,12 +354,22 @@ void Screen::UpdateStandardDouble(int minimumX, int y, double oldDouble, double 
 }
 
 void Screen::PrintStandardDouble(int minimumX, int y, double number, int decimalPlaces, int color) {
-  if (number < 10) {
-    Print(minimumX + 40, y, number, decimalPlaces, color);
-  } else if (number < 100) {
-    Print(minimumX + 20, y, number, decimalPlaces, color);
+  if(number >= 0) {
+    if (number < 10) {
+      Print(minimumX + 40, y, number, decimalPlaces, color);
+    } else if (number < 100) {
+      Print(minimumX + 20, y, number, decimalPlaces, color);
+    } else {
+      Print(minimumX, y, number, decimalPlaces, color);
+    }
   } else {
-    Print(minimumX, y, number, decimalPlaces, color);
+    if (number > -10) {
+      Print(minimumX + 28, y, number, decimalPlaces, color);
+    } else if (number > -100) {
+      Print(minimumX + 8, y, number, decimalPlaces, color);
+    } else {
+      Print(minimumX -4, y, number, decimalPlaces, color);
+    }
   }
 }
 
