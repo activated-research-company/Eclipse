@@ -237,9 +237,11 @@ void Run() {
     screen->Pause();
     screen->UpdateOutput(0);
     GetNextButtonPress(3, &ReadAndUpdateTemperature);
-    screen->UpdateOutput(Output / 2.55);
     if (state == OFF) { return; }
-    if (state != OFF) { screen->Resume(); }
+    if (state != OFF) {
+      screen->Resume();
+      screen->UpdateOutput(Output / 2.55);
+    }
   }
 
   if (fault != 0) { // check and see if we had a fault while editting setpoint or parameters
