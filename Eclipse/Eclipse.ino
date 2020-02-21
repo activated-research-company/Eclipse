@@ -114,12 +114,8 @@ void loop() {
 
 void WaitToBeTurnedOn() {
 
-  // wait for power button to be a non-depressed state
-  while (PowerButtonIsDepressed()) { watchdogTimer->Refresh(); }
-
   int ledOutput = 0;
   int ledOutputDirection;
-  bool readyToTurnOn = false;
   
   while (PowerButtonIsNotDepressed()) {
 
@@ -130,9 +126,8 @@ void WaitToBeTurnedOn() {
     ledOutput += ledOutputDirection;
     
     watchdogTimer->Delay(10);
-
-    while (PowerButtonIsDepressed()) { readyToTurnOn = true; watchdogTimer->Refresh(); }
-    if (readyToTurnOn) { break; }
+    
+    if (PowerButtonIsDepressed()) { break; }
   }
 
   goToNextState = true;
@@ -204,8 +199,7 @@ void Edit() {
 
 void Run() {
         
-  if (PowerButtonIsDepressed()) {
-      while (PowerButtonIsDepressed()) { }
+  if (PowerButtonIsNotDepressed()) {
       TurnOff();
       return;
   }

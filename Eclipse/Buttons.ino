@@ -36,7 +36,7 @@ bool PushButtonThreeIsNotDepressed() {
 }
 
 bool AtLeastOneButtonIsDepressed() {
-  return PowerButtonIsDepressed() || PushButtonOneIsDepressed() || PushButtonTwoIsDepressed() || PushButtonThreeIsDepressed();
+  return PushButtonOneIsDepressed() || PushButtonTwoIsDepressed() || PushButtonThreeIsDepressed();
 }
 
 int GetNextButtonPress(int validButtons, void (*loopRoutine)()) {
@@ -45,7 +45,7 @@ int GetNextButtonPress(int validButtons, void (*loopRoutine)()) {
   }
   watchdogTimer->Delay(5); // filteres out additional responses right before going from depressed to not depressed
   while (true) {
-    if (PowerButtonIsDepressed()) { TurnOff(); return PowerButton; }
+    if (PowerButtonIsNotDepressed()) { TurnOff(); return PowerButton; }
     if (validButtons >= 1 and PushButtonOneIsDepressed()) { return PushButtonOne; }
     if (validButtons >= 2 and PushButtonTwoIsDepressed()) { return PushButtonTwo; }
     if (validButtons >= 3 and PushButtonThreeIsDepressed()) { return PushButtonThree; }
