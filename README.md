@@ -1,3 +1,3 @@
 # Eclipse
 
-ARC heater controller for use with polyarc.
+This project powers the ARC heater controller for use with the Polyarc&reg;.
